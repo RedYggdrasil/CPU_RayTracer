@@ -13,6 +13,7 @@ set(APP_SOURCES
   ${APP_PUBLIC_SRC}pch.h
   ${APP_PRIVTE_SRC}main.cpp
   ${APP_PUBLIC_SRC}/SystemElement/Picture.h		${APP_PRIVTE_SRC}/SystemElement/Picture.cpp
+  ${APP_PUBLIC_SRC}/Tools/RLog.h				${APP_PRIVTE_SRC}/Tools/RLog.cpp
 )
 
 create_non_existing("${APP_SOURCES}" "${CMAKE_CURRENT_SOURCE_DIR}" ${APP_NAME})

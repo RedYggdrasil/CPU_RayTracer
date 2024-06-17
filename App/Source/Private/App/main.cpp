@@ -1,5 +1,6 @@
 #include "App/pch.h"
 #include "Gen_App/Config/AppConfig.h"
+#include "App/Tools/RLog.h"
 
 #include "App/SystemElement/Picture.h"
 
@@ -24,6 +25,12 @@ int main(int argc, char** argv)
 
 		for (int32_t x = 0; x < size.x; ++x)
 		{
+			static int32_t lastLogs = x / 10;
+			if ((x / 10) > lastLogs)
+			{
+				RLog::Log(LOG_DISPLAY, TEXT("In Row x = '{}'"), x);
+				lastLogs = x / 10;
+			}
 			float xf = (float)x;
 			for (int32_t y = 0; y < size.y; ++y)
 			{
