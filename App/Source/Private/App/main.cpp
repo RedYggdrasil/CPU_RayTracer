@@ -22,7 +22,6 @@ int main(int argc, char** argv)
 		ZoneScopedN("Draw");
 		XMINT2 size = resultBuffer.GetSize();
 		XMFLOAT2 sizef = XMFLOAT2((float)size.x, (float)size.y);
-
 		for (int32_t x = 0; x < size.x; ++x)
 		{
 			static int32_t lastLogs = x / 10;
