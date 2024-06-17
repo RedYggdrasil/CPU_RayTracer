@@ -6,27 +6,12 @@
 
 namespace AppNmsp
 {
-	struct Color
-	{
-		uint8_t R;
-		uint8_t G;
-		uint8_t B;
-	};
-	struct PixelData
-	{
-		union
-		{
-			uint8_t RGB[3];
-			Color Color;
-		};
-	};
-
 	class Picture
 	{
 	private:
 		DirectX::XMINT2 m_size;
 		size_t m_totalSize;
-		std::vector<PixelData> m_pixels;
+		std::vector<DirectX::XMFLOAT3> m_pixels;
 		std::filesystem::path m_path;
 
 	public:
@@ -34,11 +19,11 @@ namespace AppNmsp
 		size_t GetTotalSize() const { return m_totalSize; }
 		const std::filesystem::path& GetPath() const { return m_path; }
 
-		inline const PixelData& operator [](const DirectX::XMINT2& InCoord) const
+		inline const DirectX::XMFLOAT3& operator [](const DirectX::XMINT2& InCoord) const
 		{
 			return m_pixels[(InCoord.y * m_size.x) + InCoord.x];
 		}
-		inline PixelData& operator [](const DirectX::XMINT2& InCoord)
+		inline DirectX::XMFLOAT3& operator [](const DirectX::XMINT2& InCoord)
 		{
 			return m_pixels[(InCoord.y * m_size.x) + InCoord.x];
 		}

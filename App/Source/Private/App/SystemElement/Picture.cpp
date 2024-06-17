@@ -37,9 +37,16 @@ const std::string_view ByteView(const void* InData, const size_t InSize)
 void AppNmsp::Picture::WriteToDisk(bool bInVerbose)
 {
 	std::ofstream MyFile(m_path, std::ios::out | std::ios::binary);
-	MyFile << "P6\n"<< m_size.x <<" " << m_size.y << "\n255\n" << ByteView(&m_pixels[0].RGB[0], sizeof(PixelData) * GetTotalSize());
+	MyFile << "P6\n" << m_size.x << " " << m_size.y << "\n255\n";// << ByteView(&m_pixels[0].RGB[0], sizeof(PixelData) * GetTotalSize());
 
-	uint8_t* data = &m_pixels[0].RGB[0];
+	for (size_t i = 0; i < m_totalSize; ++i)
+	{
+		MyFile
+			<< uint8_t(255.999f * m_pixels[i].x)
+			<< uint8_t(255.999f * m_pixels[i].y)
+			<< uint8_t(255.999f * m_pixels[i].z);
+	}
+	//uint8_t* data = &m_pixels[0].RGB[0];
 
 	MyFile.close();
 	if (bInVerbose)

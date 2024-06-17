@@ -34,11 +34,11 @@ int main(int argc, char** argv)
 			float xf = (float)x;
 			for (int32_t y = 0; y < size.y; ++y)
 			{
-				resultBuffer[{x, y}].Color = Color
+				resultBuffer[{x, y}] = XMFLOAT3
 				{
-					.R = (uint8_t)((xf / sizef.x) * 255.f),
-					.G = (uint8_t)(((float)y / sizef.y) * 255.f),
-					.B = 127ui8
+					(xf			/ sizef.x),
+					((float)y	/ sizef.y),
+					0.0f
 				};
 			}
 		}
