@@ -29,9 +29,9 @@ AppNmsp::Picture::Picture(DirectX::XMINT2 InSize, std::string_view InPictureName
 	m_pixels.resize(GetTotalSize());
 }
 
-inline constexpr std::string_view ByteView(const void* InData, const size_t size)
+inline const std::string_view ByteView(const void* InData, const size_t InSize)
 {
-	return std::string_view(reinterpret_cast<const char*>(InData), size);
+	return std::string_view(reinterpret_cast<const char*>(InData), InSize);
 };
 
 void AppNmsp::Picture::WriteToDisk(bool bInVerbose)
