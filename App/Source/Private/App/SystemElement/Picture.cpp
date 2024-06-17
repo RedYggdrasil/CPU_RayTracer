@@ -29,7 +29,7 @@ AppNmsp::Picture::Picture(DirectX::XMINT2 InSize, std::string_view InPictureName
 	m_pixels.resize(GetTotalSize());
 }
 
-inline const std::string_view ByteView(const void* InData, const size_t InSize)
+const std::string_view ByteView(const void* InData, const size_t InSize)
 {
 	return std::string_view(reinterpret_cast<const char*>(InData), InSize);
 };
