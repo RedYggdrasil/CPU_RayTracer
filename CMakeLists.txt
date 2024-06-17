@@ -2,19 +2,24 @@ cmake_minimum_required (VERSION 3.8)
 
 project("CPU_RayTracer"  VERSION 1.0)
 
-# Include sub-projects.
+
+option( TRACY_ENABLE "" ON)
 
 
 # Include sub-projects.
-# The App
 add_subdirectory ("CMakeLibs")
+
+
+# The External build libraries
+add_subdirectory("ELibs")
+
+ # The Locally build libraries
+  add_subdirectory("LLibs")
 
 # The App
 add_subdirectory ("App")
 
 
- # The Locally build libraries
-  add_subdirectory("LLibs")
 
 
 # Set app as the Startup project

@@ -31,11 +31,19 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET ${APP_NAME} PROPERTY CXX_STANDARD 20)
 endif()
 
+get_property(TRACY_INC_PATH GLOBAL PROPERTY TRACY_INC_PATH)
+
+message("App name: '${APP_NAME}'")
+
+message("Got tracy path: '${TRACY_INC_PATH}'")
+
+target_link_libraries(${APP_NAME} PUBLIC Tracy::TracyClient)
 
 target_include_directories(${APP_NAME} 
  PUBLIC
   "${PROJECT_BINARY_DIR}/${APP_NAME}/Gen_SRC/Public/"
   "${CMAKE_CURRENT_SOURCE_DIR}/Source/Public/"
+  ${TRACY_INC_PATH}
  PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/Source/Private/"
 )
