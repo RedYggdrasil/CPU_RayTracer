@@ -43,4 +43,6 @@ namespace AppNmsp
 		DirectX::XMStoreFloat3(&InOutPDestination->Origin,		InOutPSource->Origin);
 		DirectX::XMStoreFloat3(&InOutPDestination->Direction,	InOutPSource->Direction);
 	};
+
+	std::string _tostring(const RayFLT& InRayFLT);
 };
