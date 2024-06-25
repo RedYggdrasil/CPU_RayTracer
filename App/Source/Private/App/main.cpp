@@ -16,13 +16,13 @@ using namespace AppNmsp;
 using namespace DirectX;
 
 inline XMFLOAT3 XM_CALLCONV RayColor(const RayVEC* InPlRay, const int32_t InRow) {
-	XMFLOAT3 result = XMFLOAT3(0.f, 0.f, 0.f);
 	XMVECTOR rayNorm = XMVector3Normalize(InPlRay->Direction);
 	
 	float a = 0.5f * (XMVectorGetZ(rayNorm) + 1.f);
+	static constexpr XMVECTOR ColA{ 1.f, 1.f, 1.f, 0.f };
+	static constexpr XMVECTOR ColB{ 0.5f, 0.7f, 1.f, 1.f };
 
-	static const XMVECTOR ColA{ 1.f, 1.f, 1.f, 0.f };
-	static const XMVECTOR ColB{ 0.5f, 0.7f, 1.f, 1.f };
+	XMFLOAT3 result;
 	XMStoreFloat3(&result, ((1.f - a) * ColA) + (a * ColB));
 	return result;
 }
