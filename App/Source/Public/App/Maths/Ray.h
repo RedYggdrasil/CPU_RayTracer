@@ -15,6 +15,13 @@ namespace AppNmsp
 		};
 	};
 
+	//A RayVec with normalized Direction
+	using RayVECNrmlzd = RayVEC;
+	//A RayVec with length Direction
+	using RayVECLength = RayVEC;
+	//A RayVec with normalized or length Direction
+	using RayVECAnyNrm = RayVEC;
+
 	class RayFLT
 	{
 	public:
@@ -32,6 +39,12 @@ namespace AppNmsp
 			DirectX::XMStoreFloat3(&Direction, InPSource->Direction);
 		};
 	};
+	//A RayFLT with normalized Direction
+	using RayFLTNrmlzd = RayFLT;
+	//A RayFLT with length Direction
+	using RayFLTLength = RayFLT;
+	//A RayFLT with normalized or length Direction
+	using RayFLTAnyNrm = RayFLT;
 
 	inline void XMLoadRay(RayVEC* InOutPDestination, const RayFLT* InOutPSource)
 	{

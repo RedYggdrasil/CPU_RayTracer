@@ -13,8 +13,9 @@ set(APP_SOURCES
   ${APP_PUBLIC_SRC}pch.h
   ${APP_PRIVTE_SRC}main.cpp
   ${APP_PUBLIC_SRC}/Maths/Camera.h				${APP_PRIVTE_SRC}/Maths/Camera.cpp
-  ${APP_PUBLIC_SRC}/Maths/RMath.h				${APP_PRIVTE_SRC}/Maths/RMath.cpp
   ${APP_PUBLIC_SRC}/Maths/Ray.h					${APP_PRIVTE_SRC}/Maths/Ray.cpp
+  ${APP_PUBLIC_SRC}/Maths/RMath.h				${APP_PRIVTE_SRC}/Maths/RMath.cpp
+  ${APP_PUBLIC_SRC}/Maths/RMathCol.h			${APP_PRIVTE_SRC}/Maths/RMathCol.cpp
   ${APP_PUBLIC_SRC}/SystemElement/Picture.h		${APP_PRIVTE_SRC}/SystemElement/Picture.cpp
   ${APP_PUBLIC_SRC}/Tools/RLog.h				${APP_PRIVTE_SRC}/Tools/RLog.cpp
 )

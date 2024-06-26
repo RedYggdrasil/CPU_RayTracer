@@ -2,6 +2,7 @@
 #include "Gen_App/Config/AppConfig.h"
 
 #include "App/Maths/Camera.h"
+#include "App/Maths/RMathCol.h"
 #include "App/Maths/Ray.h"
 #include "App/SystemElement/Picture.h"
 #include "App/Tools/RLog.h"
@@ -15,7 +16,14 @@
 using namespace AppNmsp;
 using namespace DirectX;
 
-inline XMFLOAT3 XM_CALLCONV RayColor(const RayVEC* InPlRay, const int32_t InRow) {
+inline XMFLOAT3 XM_CALLCONV RayColor(const RayVECAnyNrm* InPlRay)
+{
+	static constexpr XMVECTOR SpherePos{ 1.f, 0.f, 0.f, 1.f };
+	if (RMathCol::RaySphereCollide(InPlRay, SpherePos, 0.5f))
+	{
+		return XMFLOAT3 { 1.f, 0.f, 0.f };
+	}
+
 	XMVECTOR rayNorm = XMVector3Normalize(InPlRay->Direction);
 	
 	float a = 0.5f * (XMVectorGetZ(rayNorm) + 1.f);
@@ -61,13 +69,13 @@ int main(int argc, char** argv)
 				float xf = (float)x;
 				XMVECTOR lPixelCenter = lCameraData.Pixel00Pos + (xf * lCameraData.PixelDeltaU) + (yf * lCameraData.PixelDeltaV);
 				XMVECTOR lRayDir = lPixelCenter - lCameraData.CameraCenter;
-				RayVEC lRay
+				RayVECLength lRay
 				{
 					.Origin = lCameraData.CameraCenter,
 					.Direction = lRayDir
 				};
 
-				resultBuffer[{x, y}] = RayColor(&lRay, yf);
+				resultBuffer[{x, y}] = RayColor(&lRay/*, yf*/);
 			}
 		}
 	}
