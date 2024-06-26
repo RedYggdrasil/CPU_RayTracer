@@ -12,7 +12,10 @@ set (APP_PRIVTE_SRC "Source/Private/${APP_NAME}/")
 set(APP_SOURCES
   ${APP_PUBLIC_SRC}pch.h
   ${APP_PRIVTE_SRC}main.cpp
+  ${APP_PUBLIC_SRC}/Defines/Defines.h			${APP_PRIVTE_SRC}/Defines/Defines.cpp
   ${APP_PUBLIC_SRC}/Debug/DebugMath.h			${APP_PRIVTE_SRC}/Debug/DebugMath.cpp
+  ${APP_PUBLIC_SRC}/Hittables/Hittable.h		${APP_PRIVTE_SRC}/Hittables/Hittable.cpp
+  ${APP_PUBLIC_SRC}/Hittables/HSphere.h			${APP_PRIVTE_SRC}/Hittables/HSphere.cpp
   ${APP_PUBLIC_SRC}/Maths/Camera.h				${APP_PRIVTE_SRC}/Maths/Camera.cpp
   ${APP_PUBLIC_SRC}/Maths/Ray.h					${APP_PRIVTE_SRC}/Maths/Ray.cpp
   ${APP_PUBLIC_SRC}/Maths/RMath.h				${APP_PRIVTE_SRC}/Maths/RMath.cpp

@@ -6,8 +6,5 @@
 #include <string>
 #include <string_view>
 
-using XMVECTOR1 = DirectX::XMVECTOR;
-using XMVECTOR2 = DirectX::XMVECTOR;
-using XMVECTOR3 = DirectX::XMVECTOR;
-using XMVECTOR4 = DirectX::XMVECTOR;
+#include "App/Defines/Defines.h"
 
