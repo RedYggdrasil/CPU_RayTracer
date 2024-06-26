@@ -30,7 +30,7 @@ inline XMFLOAT3 XM_CALLCONV RayColor(const RayVECAnyNrm* InPlRay)
 		XMVECTOR NormalAtHitPoint = XMVector3Normalize(InPlRay->At(ColOnRayLength) - SpherePos);
 
 		//Use this line to get RayTracingInOneWeekend color result
-		NormalAtHitPoint = XMVector3TransformCoord(NormalAtHitPoint, lToRightHandedCartesianCoordinate);
+		NormalAtHitPoint = DEBUG_ToRightHandedCartesianCoordinate(NormalAtHitPoint);
 
 		XMStoreFloat3(&result, XMVectorScale(NormalAtHitPoint + VECTOR_ONE, 0.5f));
 	}
