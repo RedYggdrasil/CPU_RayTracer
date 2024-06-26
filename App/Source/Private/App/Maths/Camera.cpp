@@ -40,8 +40,7 @@ Camera Camera::FromSelectedCameraData(const float InAspectRation, const float In
 	XMVECTOR lFocalVector{ result.FocalLength, 0.f, 0.f, 0.f };
 
 	// Calculate the location of the upper left pixel.
-	//Personal note : why is it minus FocalVector and not add ?
-	XMVECTOR lViewportUpperLeftPos = lCameraCenter - lFocalVector - (lCameraViewportU / 2.f) - (lCameraViewportV / 2.f);
+	XMVECTOR lViewportUpperLeftPos = lCameraCenter + lFocalVector - (lCameraViewportU / 2.f) - (lCameraViewportV / 2.f);
 	XMStoreFloat3(&result.ViewportUpperLeftPos, lViewportUpperLeftPos);
 
 	XMVECTOR lPixel00Pos = lViewportUpperLeftPos + XMVectorScale((lCameraPixelDeltaU + lCameraPixelDeltaV), 0.5f);
