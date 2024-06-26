@@ -2,10 +2,13 @@
 #include "Gen_App/Config/AppConfig.h"
 
 #include "App/Maths/Camera.h"
+#include "App/Maths/RMath.h"
 #include "App/Maths/RMathCol.h"
 #include "App/Maths/Ray.h"
 #include "App/SystemElement/Picture.h"
 #include "App/Tools/RLog.h"
+
+#include "App/Debug/DebugMath.h"
 
 #include <iostream>
 
@@ -18,20 +21,29 @@ using namespace DirectX;
 
 inline XMFLOAT3 XM_CALLCONV RayColor(const RayVECAnyNrm* InPlRay)
 {
-	static constexpr XMVECTOR SpherePos{ 1.f, 0.f, 0.f, 1.f };
-	if (RMathCol::RaySphereCollide(InPlRay, SpherePos, 0.5f))
-	{
-		return XMFLOAT3 { 1.f, 0.f, 0.f };
-	}
-
-	XMVECTOR rayNorm = XMVector3Normalize(InPlRay->Direction);
-	
-	float a = 0.5f * (XMVectorGetZ(rayNorm) + 1.f);
-	static constexpr XMVECTOR ColA{ 1.f, 1.f, 1.f, 0.f };
-	static constexpr XMVECTOR ColB{ 0.5f, 0.7f, 1.f, 1.f };
-
 	XMFLOAT3 result;
-	XMStoreFloat3(&result, ((1.f - a) * ColA) + (a * ColB));
+	static constexpr XMVECTOR SpherePos{ 1.f, 0.f, 0.f, 1.f };
+	static constexpr float SphereRadius = 0.5f;
+	const float ColOnRayLength = RMathCol::SphereCollisionOnRay(InPlRay, SpherePos, SphereRadius);
+	if (ColOnRayLength > 0.f)
+	{
+		XMVECTOR NormalAtHitPoint = XMVector3Normalize(InPlRay->At(ColOnRayLength) - SpherePos);
+
+		//Use this line to get RayTracingInOneWeekend color result
+		NormalAtHitPoint = XMVector3TransformCoord(NormalAtHitPoint, lToRightHandedCartesianCoordinate);
+
+		XMStoreFloat3(&result, XMVectorScale(NormalAtHitPoint + VECTOR_ONE, 0.5f));
+	}
+	else
+	{
+		XMVECTOR rayNorm = XMVector3Normalize(InPlRay->Direction);
+
+		float a = 0.5f * (XMVectorGetZ(rayNorm) + 1.f);
+		static constexpr XMVECTOR ColA{ 1.f, 1.f, 1.f, 0.f };
+		static constexpr XMVECTOR ColB{ 0.5f, 0.7f, 1.f, 1.f };
+
+		XMStoreFloat3(&result, ((1.f - a) * ColA) + (a * ColB));
+	}
 	return result;
 }
 
