@@ -3,7 +3,7 @@
 using namespace AppNmsp;
 using namespace DirectX;
 
-bool HSphere::Hit(const RayVECAnyNrm& InRayVec, const float InRayTMin, const float InRayTMax, HitRecord& OutRecord) const
+bool HSphere::Hit(const RayVECAnyNrm& InRayVec, const Interval InRayInterval, HitRecord& OutRecord) const
 {
     XMVECTOR lCenter = XMLoadFloat3(&m_center);
     XMVECTOR oc = lCenter - InRayVec.Origin;
@@ -21,10 +21,10 @@ bool HSphere::Hit(const RayVECAnyNrm& InRayVec, const float InRayTMin, const flo
 
     // Find the nearest root that lies in the acceptable range.
     float root = (h - sqrtd) / a;
-    if (root <= InRayTMin || InRayTMax <= root) 
+    if (!InRayInterval.Surrounds(root))
     {
         root = (h + sqrtd) / a;
-        if (root <= InRayTMin || InRayTMax <= root)
+        if (!InRayInterval.Surrounds(root))
         {
             return false;
         }

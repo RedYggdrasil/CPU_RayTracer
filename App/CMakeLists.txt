@@ -18,6 +18,7 @@ set(APP_SOURCES
   ${APP_PUBLIC_SRC}/Hittables/HList.h			${APP_PRIVTE_SRC}/Hittables/HList.cpp
   ${APP_PUBLIC_SRC}/Hittables/HSphere.h			${APP_PRIVTE_SRC}/Hittables/HSphere.cpp
   ${APP_PUBLIC_SRC}/Maths/Camera.h				${APP_PRIVTE_SRC}/Maths/Camera.cpp
+  ${APP_PUBLIC_SRC}/Maths/Interval.h			${APP_PRIVTE_SRC}/Maths/Interval.cpp
   ${APP_PUBLIC_SRC}/Maths/Ray.h					${APP_PRIVTE_SRC}/Maths/Ray.cpp
   ${APP_PUBLIC_SRC}/Maths/RMath.h				${APP_PRIVTE_SRC}/Maths/RMath.cpp
   ${APP_PUBLIC_SRC}/Maths/RMathCol.h			${APP_PRIVTE_SRC}/Maths/RMathCol.cpp

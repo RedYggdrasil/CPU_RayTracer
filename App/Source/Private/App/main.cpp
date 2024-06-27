@@ -23,10 +23,11 @@ using namespace DirectX;
 
 inline XMFLOAT3 XM_CALLCONV RayColor(const RayVECAnyNrm* InPlRay, const HList* InWorld)
 {
+	static constexpr Interval DefaultInterval = Interval(0, R_INFINITY_F);
 	XMFLOAT3 result;
 	HitRecord hitRecord;
 
-	if (InWorld->Hit(*InPlRay, 0, R_INFINITY_F, /*Out*/ hitRecord))
+	if (InWorld->Hit(*InPlRay, DefaultInterval, /*Out*/ hitRecord))
 	{
 		XMVECTOR NormalAtHitPoint = XMLoadFloat3(&hitRecord.normal);
 

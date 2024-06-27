@@ -2,6 +2,7 @@
 
 #include "App/pch.h"
 #include "App/Maths/Ray.h"
+#include "App/Maths/Interval.h"
 
 enum class HittableType : uint8_t
 {
@@ -43,7 +44,7 @@ namespace AppNmsp
         inline bool operator<(const Hittable& InOther) const 
         { return HType < InOther.HType; }
     public:
-        virtual bool Hit(const RayVECAnyNrm& InRayVec, const float InRayTMin, const float InRayTMax, HitRecord& OutRecord) const R_PURE;
+        virtual bool Hit(const RayVECAnyNrm& InRayVec, const Interval InRayInterval, HitRecord& OutRecord) const R_PURE;
     
     protected:
         Hittable(const HittableType InHType) : HType(InHType) {};
