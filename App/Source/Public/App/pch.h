@@ -7,4 +7,5 @@
 #include <string_view>
 
 #include "App/Defines/Defines.h"
+#include "App/Tools/REnum.h"
 
