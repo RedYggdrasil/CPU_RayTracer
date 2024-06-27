@@ -17,7 +17,7 @@ bool HSphere::Hit(const RayVECAnyNrm& InRayVec, const float InRayTMin, const flo
         return false;
     }
 
-    float sqrtd = sqrtf(discriminant);
+    float sqrtd = R_SQRTF(discriminant);
 
     // Find the nearest root that lies in the acceptable range.
     float root = (h - sqrtd) / a;

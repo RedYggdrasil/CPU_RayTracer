@@ -9,6 +9,8 @@
 #include "App/Tools/RLog.h"
 
 #include "App/Debug/DebugMath.h"
+#include "App/Hittables/HList.h"
+#include "App/Hittables/HSphere.h"
 
 #include <iostream>
 
@@ -19,15 +21,14 @@
 using namespace AppNmsp;
 using namespace DirectX;
 
-inline XMFLOAT3 XM_CALLCONV RayColor(const RayVECAnyNrm* InPlRay)
+inline XMFLOAT3 XM_CALLCONV RayColor(const RayVECAnyNrm* InPlRay, const HList* InWorld)
 {
 	XMFLOAT3 result;
-	static constexpr XMVECTOR SpherePos{ 1.f, 0.f, 0.f, 1.f };
-	static constexpr float SphereRadius = 0.5f;
-	const float ColOnRayLength = RMathCol::SphereCollisionOnRay(InPlRay, SpherePos, SphereRadius);
-	if (ColOnRayLength > 0.f)
+	HitRecord hitRecord;
+
+	if (InWorld->Hit(*InPlRay, 0, R_INFINITY_F, /*Out*/ hitRecord))
 	{
-		XMVECTOR NormalAtHitPoint = XMVector3Normalize(InPlRay->At(ColOnRayLength) - SpherePos);
+		XMVECTOR NormalAtHitPoint = XMLoadFloat3(&hitRecord.normal);
 
 		//Use this line to get RayTracingInOneWeekend color result
 		NormalAtHitPoint = DEBUG_ToRightHandedCartesianCoordinate(NormalAtHitPoint);
@@ -59,7 +60,9 @@ int main(int argc, char** argv)
 
 	Picture resultBuffer(cameraData.ImageSize, TEXT("Result.ppm"));
 
-
+	HList world;
+	world.Add(std::make_shared<HSphere>(XMFLOAT3{ 1.f, 0.f, 0.f }, 0.5f));
+	world.Add(std::make_shared<HSphere>(XMFLOAT3{ 1.f, 0.f, -100.5f }, 100.f));
 
 	{
 		ZoneScopedN("Draw");
@@ -87,7 +90,7 @@ int main(int argc, char** argv)
 					.Direction = lRayDir
 				};
 
-				resultBuffer[{x, y}] = RayColor(&lRay/*, yf*/);
+				resultBuffer[{x, y}] = RayColor(&lRay, &world);
 			}
 		}
 	}

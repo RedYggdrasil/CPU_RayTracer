@@ -25,7 +25,7 @@ namespace AppNmsp
                 return -1.0f;
             }
             else {
-                return (h - sqrtf(discriminant)) / a;
+                return (h - R_SQRTF(discriminant)) / a;
             }
         }
 
