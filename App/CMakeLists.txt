@@ -25,6 +25,8 @@ set(APP_SOURCES
   ${APP_PUBLIC_SRC}/SystemElement/Picture.h		${APP_PRIVTE_SRC}/SystemElement/Picture.cpp
   ${APP_PUBLIC_SRC}/Tools/REnum.h				${APP_PRIVTE_SRC}/Tools/REnum.cpp
   ${APP_PUBLIC_SRC}/Tools/RLog.h				${APP_PRIVTE_SRC}/Tools/RLog.cpp
+  ${APP_PUBLIC_SRC}/Tools/RRandomizer.h			${APP_PRIVTE_SRC}/Tools/RRandomizer.cpp
+  ${APP_PUBLIC_SRC}/Tools/RRenderRandomizer.h	${APP_PRIVTE_SRC}/Tools/RRenderRandomizer.cpp
 )
 
 create_non_existing("${APP_SOURCES}" "${CMAKE_CURRENT_SOURCE_DIR}" ${APP_NAME})

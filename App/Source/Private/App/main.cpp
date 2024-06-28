@@ -6,6 +6,7 @@
 #include "App/Maths/RMathCol.h"
 #include "App/Maths/Ray.h"
 #include "App/SystemElement/Picture.h"
+#include "App/Tools/RRenderRandomizer.h"
 #include "App/Tools/RLog.h"
 
 #include "App/Debug/DebugMath.h"
@@ -13,7 +14,6 @@
 #include "App/Hittables/HSphere.h"
 
 #include <iostream>
-
 
 #include "Tracy.hpp"
 #include "TracyC.h"
@@ -25,6 +25,9 @@ using namespace DirectX;
 int main(int argc, char** argv) 
 {
 	ZoneScopedN("Application");
+
+	RRenderRandomizer renderRandomizer = RRenderRandomizer();
+	renderRandomizer.Initialize();
 
 	Camera camera;
 	CameraFLT& cameraData = camera.GetData();
