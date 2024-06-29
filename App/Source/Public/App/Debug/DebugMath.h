@@ -1,7 +1,7 @@
 #pragma once
 
-#ifdef _DEBUG
 #include "App/pch.h"
+#ifdef _DEBUG
 
 /// <summary>
 /// Colum major matrix to cartesian coordiante

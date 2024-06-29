@@ -7,6 +7,7 @@
 #include "App/Tools/RLog.h"
 #include "App/Tools/RRenderRandomizer.h"
 #include "App/Debug/DebugMath.h"
+#include <iostream>
 
 using namespace AppNmsp;
 using namespace DirectX;
@@ -173,6 +174,8 @@ void AppNmsp::Camera::Render(const HList* InWorld, Picture* InTarget)
 	}
 #endif // _DEBUG
 
+
+
 	XMINT2 size = InTarget->GetSize();
 	XMFLOAT2 sizef = XMFLOAT2((float)size.x, (float)size.y);
 
@@ -184,7 +187,7 @@ void AppNmsp::Camera::Render(const HList* InWorld, Picture* InTarget)
 	for (int32_t y = 0; y < size.y; ++y)
 	{
 		static int32_t lastLogs = y / 10;
-		if ((y / 10) > lastLogs)
+		if (false && (y / 10) > lastLogs)
 		{
 			RLog::Log(LOG_DISPLAY, TEXT("In Row y = '{}'"), y);
 			lastLogs = y / 10;
