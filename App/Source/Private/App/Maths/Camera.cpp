@@ -5,6 +5,7 @@
 #include "App/Hittables/HList.h"
 #include "App/SystemElement/Picture.h"
 #include "App/Tools/RLog.h"
+#include "App/Tools/RRenderRandomizer.h"
 #include "App/Debug/DebugMath.h"
 
 using namespace AppNmsp;
@@ -67,6 +68,11 @@ void AppNmsp::XMLoadCamera(CameraVEC* InOutPDestination, const CameraFLT* InPSou
 	InOutPDestination->ViewportSize			= DirectX::XMLoadFloat2(&InPSource->ViewportSize);
 
 	InOutPDestination->ImageSize			= DirectX::XMLoadSInt2(&InPSource->ImageSize);
+
+	InOutPDestination->AspectRatio = InPSource->AspectRatio;
+	InOutPDestination->FocalLength = InPSource->FocalLength;
+	InOutPDestination->SamplesPerPixel = InPSource->SamplesPerPixel;
+	InOutPDestination->PixelSamplesScale = InPSource->PixelSamplesScale;
 }
 
 void AppNmsp::XMStoreCamera(CameraFLT* InOutPDestination, const CameraVEC* InPSource)
@@ -82,14 +88,22 @@ void AppNmsp::XMStoreCamera(CameraFLT* InOutPDestination, const CameraVEC* InPSo
 	DirectX::XMStoreFloat2(&InOutPDestination->ViewportSize			, InPSource->ViewportSize);
 
 	DirectX::XMStoreSInt2(&InOutPDestination->ImageSize				, InPSource->ImageSize);
+
+	InOutPDestination->AspectRatio = InPSource->AspectRatio;
+	InOutPDestination->FocalLength = InPSource->FocalLength;
+	InOutPDestination->SamplesPerPixel = InPSource->SamplesPerPixel;
+	InOutPDestination->PixelSamplesScale = InPSource->PixelSamplesScale;
 }
 
+inline XMVECTOR XM_CALLCONV SampleSquare(FXMVECTOR InPixelDeltaU, FXMVECTOR InPixelDeltaV)
+{
+	static thread_local RRenderRandomizer::LocalRealDistribution<float> localDistrib = RRenderRandomizer::s_GetLocalDesyncDistribution<float>(-0.5f, 0.5f);
+	return (XMVectorScale(InPixelDeltaU, localDistrib()) + (XMVectorScale(InPixelDeltaV, localDistrib())));
+}
 
-
-inline XMFLOAT3 XM_CALLCONV RayColor(const RayVECAnyNrm* InPlRay, const HList* InWorld)
+inline XMVECTOR XM_CALLCONV RayColor(const RayVECAnyNrm* InPlRay, const HList* InWorld)
 {
 	static constexpr Interval DefaultInterval = Interval(0, R_INFINITY_F);
-	XMFLOAT3 result;
 	HitRecord hitRecord;
 
 	if (InWorld->Hit(*InPlRay, DefaultInterval, /*Out*/ hitRecord))
@@ -99,7 +113,7 @@ inline XMFLOAT3 XM_CALLCONV RayColor(const RayVECAnyNrm* InPlRay, const HList* I
 		//Use this line to get RayTracingInOneWeekend color result
 		NormalAtHitPoint = DEBUG_ToRightHandedCartesianCoordinate(NormalAtHitPoint);
 
-		XMStoreFloat3(&result, XMVectorScale(NormalAtHitPoint + VECTOR_ONE, 0.5f));
+		return XMVectorScale(NormalAtHitPoint + VECTOR_ONE, 0.5f);
 	}
 	else
 	{
@@ -109,16 +123,15 @@ inline XMFLOAT3 XM_CALLCONV RayColor(const RayVECAnyNrm* InPlRay, const HList* I
 		static constexpr XMVECTOR ColA{ 1.f, 1.f, 1.f, 0.f };
 		static constexpr XMVECTOR ColB{ 0.5f, 0.7f, 1.f, 1.f };
 
-		XMStoreFloat3(&result, ((1.f - a) * ColA) + (a * ColB));
+		return ((1.f - a) * ColA) + (a * ColB);
 	}
-	return result;
 }
 
 void AppNmsp::Camera::Initialize()
 {
 	m_cameraData.ImageSizeFromWidth(m_cameraData.ImageSize.x);
 	m_cameraData.ViewportSizeFromHeight(2.f);
-
+	m_cameraData.PixelSamplesScale = 1.f / (float)m_cameraData.SamplesPerPixel;
 
 	// Calculate the vectors across the horizontal and down the vertical viewport edges.
 	m_cameraData.ViewportU = XMFLOAT3(0.f, m_cameraData.ViewportSize.x, 0.f);
@@ -181,14 +194,21 @@ void AppNmsp::Camera::Render(const HList* InWorld, Picture* InTarget)
 		{
 			float xf = (float)x;
 			XMVECTOR lPixelCenter = lPixel00Pos + (xf * lPixelDeltaU) + (yf * lPixelDeltaV);
-			XMVECTOR lRayDir = lPixelCenter - lCameraCenter;
-			RayVECLength lRay
-			{
-				.Origin = lCameraCenter,
-				.Direction = lRayDir
-			};
 
-			InTarget->operator[]({x, y}) = RayColor(&lRay, InWorld);
+			XMVECTOR resultColor = { 0.f, 0.f, 0.f, 0.f };
+			for (int32_t sample = 0; sample < m_cameraData.SamplesPerPixel; sample++) 
+			{
+
+				XMVECTOR lRayDir = /*PixelSample*/(lPixelCenter + SampleSquare(lPixelDeltaU, lPixelDeltaV)) - /*RayOrigin*/lCameraCenter;
+				RayVECLength lRay
+				{
+					.Origin = lCameraCenter,
+					.Direction = lRayDir
+				};
+				resultColor += RayColor(&lRay, InWorld);
+			}
+
+			XMStoreFloat3(&InTarget->operator[]({ x, y }), XMVectorScale(resultColor, m_cameraData.PixelSamplesScale));
 		}
 	}
 }

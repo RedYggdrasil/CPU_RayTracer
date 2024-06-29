@@ -28,12 +28,12 @@ int main(int argc, char** argv)
 
 	RRenderRandomizer renderRandomizer = RRenderRandomizer();
 	renderRandomizer.Initialize();
-	auto toto = RRenderRandomizer::s_GetLocalDesyncDistribution<float>();
 
 	Camera camera;
 	CameraFLT& cameraData = camera.GetData();
 	cameraData.AspectRatio = 16.f / 9.f;
 	cameraData.ImageSizeFromWidth(400);
+	cameraData.SamplesPerPixel = 100;
 
 	camera.Initialize();
 

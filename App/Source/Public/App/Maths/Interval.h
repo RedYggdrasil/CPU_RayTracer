@@ -1,5 +1,6 @@
 #pragma once
 #include "App/pch.h"
+#include <algorithm>
 
 namespace AppNmsp
 {
@@ -9,7 +10,7 @@ namespace AppNmsp
         float Min;
         float Max;
     public:
-        float size() const {
+        inline constexpr float size() const {
             return Max - Min;
         }
 
@@ -18,7 +19,7 @@ namespace AppNmsp
         /// </summary>
         /// <param name="InValue">Value to test</param>
         /// <returns>Is value inside the given range (including extremities) ?</returns>
-        bool Contains(const float InValue) const {
+        inline constexpr bool Contains(const float InValue) const {
             return Min <= InValue && InValue <= Max;
         }
 
@@ -27,9 +28,10 @@ namespace AppNmsp
         /// </summary>
         /// <param name="InValue">Value to test</param>
         /// <returns>Is value inside the given range (excluding extremities) ?</returns>
-        bool Surrounds(const float InValue) const {
+        inline constexpr bool Surrounds(const float InValue) const {
             return Min < InValue && InValue < Max;
         }
+        inline constexpr float Clamp(const float InValue) const { return std::clamp<float>(InValue, Min, Max); }
     public:
 
         constexpr Interval() : Min(+R_INFINITY_F), Max(-R_INFINITY_F) {}

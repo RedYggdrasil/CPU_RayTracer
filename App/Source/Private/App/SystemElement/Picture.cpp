@@ -1,5 +1,7 @@
 #include "App/SystemElement/Picture.h"
 
+#include "App/Maths/Interval.h"
+
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -39,12 +41,13 @@ void AppNmsp::Picture::WriteToDisk(bool bInVerbose)
 	std::ofstream MyFile(m_path, std::ios::out | std::ios::binary);
 	MyFile << "P6\n" << m_size.x << " " << m_size.y << "\n255\n";// << ByteView(&m_pixels[0].RGB[0], sizeof(PixelData) * GetTotalSize());
 
+	static constexpr Interval intencity(0.000f, 0.999f);
 	for (size_t i = 0; i < m_totalSize; ++i)
 	{
 		MyFile
-			<< uint8_t(255.999f * m_pixels[i].x)
-			<< uint8_t(255.999f * m_pixels[i].y)
-			<< uint8_t(255.999f * m_pixels[i].z);
+			<< uint8_t(256.f * intencity.Clamp(m_pixels[i].x))
+			<< uint8_t(256.f * intencity.Clamp(m_pixels[i].y))
+			<< uint8_t(256.f * intencity.Clamp(m_pixels[i].z));
 	}
 	//uint8_t* data = &m_pixels[0].RGB[0];
 
