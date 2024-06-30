@@ -34,8 +34,9 @@ int main(int argc, char** argv)
 	Camera camera;
 	CameraFLT& cameraData = camera.GetData();
 	cameraData.AspectRatio = 16.f / 9.f;
-	cameraData.ImageSizeFromWidth(2160);
+	cameraData.ImageSizeFromWidth(400);// (2160);
 	cameraData.SamplesPerPixel = 100;
+	cameraData.SamplesPerPixel = 50;
 
 	camera.Initialize();
 

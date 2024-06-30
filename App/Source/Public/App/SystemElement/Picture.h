@@ -6,8 +6,24 @@
 
 namespace AppNmsp
 {
+#if WITH_REFERENCE
+	struct pictureColor {
+	public:
+		double x, y, z;
+	};
+#endif
 	class Picture
 	{
+
+	public:
+#if WITH_REFERENCE
+		std::vector<pictureColor> m_pixelDBLs;
+		inline size_t mPixelDBLIDX(size_t x, size_t y) const
+		{
+			return (y * m_size.x) + x;
+		}
+#endif
+
 	private:
 		DirectX::XMINT2 m_size;
 		size_t m_totalSize;

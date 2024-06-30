@@ -3,7 +3,7 @@
 using namespace AppNmsp;
 using namespace DirectX;
 
-bool HList::Hit(const RayVECAnyNrm& InRayVec, const Interval InRayInterval, HitRecord& OutRecord) const
+bool HList::Hit(const RayVECAnyNrm& InRayVec, const FInterval InRayInterval, HitRecord& OutRecord) const
 {
     HitRecord localRecord;
     bool bDidHit = false;
@@ -11,7 +11,7 @@ bool HList::Hit(const RayVECAnyNrm& InRayVec, const Interval InRayInterval, HitR
 
     for (const std::shared_ptr<Hittable>& hittable : m_hittables) 
     {
-        if (hittable->Hit(InRayVec, Interval(InRayInterval.Min, ClosestResult), localRecord))
+        if (hittable->Hit(InRayVec, FInterval(InRayInterval.Min, ClosestResult), localRecord))
         {
             bDidHit = true;
             ClosestResult = localRecord.t;
@@ -21,3 +21,22 @@ bool HList::Hit(const RayVECAnyNrm& InRayVec, const Interval InRayInterval, HitR
 
     return bDidHit;
 }
+
+#if WITH_REFERENCE
+bool HList::Hit(const ray& InRay, const DInterval InRayInterval, hit_record& OutRecord) const
+{
+    hit_record temp_rec;
+    bool hit_anything = false;
+    auto closest_so_far = InRayInterval.Max;
+
+    for (const auto& object : m_hittables) {
+        if (object->Hit(InRay, DInterval(InRayInterval.Min, closest_so_far), temp_rec)) {
+            hit_anything = true;
+            closest_so_far = temp_rec.t;
+            OutRecord = temp_rec;
+        }
+    }
+
+    return hit_anything;
+}
+#endif

@@ -19,6 +19,7 @@ namespace AppNmsp
 		float FocalLength;
 		int32_t SamplesPerPixel;
 		float PixelSamplesScale;
+		int32_t MaxDepth;
 	};
 	struct CameraFLT
 	{
@@ -36,6 +37,7 @@ namespace AppNmsp
 		float FocalLength = 1.f;
 		int32_t SamplesPerPixel = 10;
 		float PixelSamplesScale;
+		int32_t MaxDepth = 10;
 	public:
 		inline static DirectX::XMINT2 ImageSizeFromWidthAndAspectRatio(const int32_t InWidth, const float InAspectRatio) { return DirectX::XMINT2{ InWidth, int32_t((float)InWidth / InAspectRatio) }; }
 		inline void ImageSizeFromWidth(const int32_t InWidth) { this->ImageSize = ImageSizeFromWidthAndAspectRatio(InWidth, this->AspectRatio); }

@@ -22,6 +22,7 @@ namespace AppNmsp
 		inline static const RRenderRandomizer& Get() { return *static_cast<RRenderRandomizer*>(mp_inst); }
 	public:
 		inline std::mt19937& GetRayGenerator() { return m_rayGenenrator; }
+		inline uint64_t GetSeed() const { return m_seed; }
 
 		/// <summary>
 		/// Default real distribution from 0 (Inc) to 1 (Exc)

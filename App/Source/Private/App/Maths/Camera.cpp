@@ -1,6 +1,7 @@
 #include "App/Maths/Camera.h"
 #include "App/Maths/Interval.h"
 #include "App/Maths/RMath.h"
+#include "App/Maths/RMathRand.h"
 #include "App/Maths/Ray.h"
 #include "App/Hittables/HList.h"
 #include "App/SystemElement/Picture.h"
@@ -11,6 +12,61 @@
 
 using namespace AppNmsp;
 using namespace DirectX;
+
+
+
+#if WITH_REFERENCE
+ray get_ray(const Camera& InCamera, int i, int j) {
+	// Construct a camera ray originating from the origin and directed at randomly sampled
+	// point around the pixel location i, j.
+
+	vec3 offset = sample_square();
+	vec3 pixel_sample = vec3(InCamera.GetData().Pixel00Pos)
+		+ ((i + offset.x()) * InCamera.GetData().PixelDeltaU)
+		+ ((j + offset.y()) * InCamera.GetData().PixelDeltaV);
+
+	vec3 ray_origin = vec3(InCamera.GetData().CameraCenter);
+	vec3 ray_direction = pixel_sample - ray_origin;
+
+	return ray(ray_origin, ray_direction);
+}
+
+
+color ray_color(const ray& r, const int32_t InDepth, const HList* world) 
+{
+	if (InDepth <= 0)
+	{
+		return color(0.0, 0.0, 0.0);
+	}
+	hit_record hitRecord;
+	if (world->Hit(r, DInterval(0, std::numeric_limits<double>::infinity()), hitRecord)) {
+		vec3 direction = random_on_hemisphere(hitRecord.normal);
+		return 0.5 * ray_color(ray(hitRecord.p, direction), InDepth - 1, world);
+	}
+
+	vec3 unit_direction = unit_vector(r.direction());
+	auto a = 0.5 * (unit_direction.y() + 1.0);
+	return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
+}
+color ray_colorFLTPrecision(const ray& r, const int32_t InDepth, const HList* world)
+{
+	if (InDepth <= 0)
+	{
+		return color(0.0, 0.0, 0.0);
+	}
+	HitRecord hitRecord;
+	RayVEC rv;
+	r.ToRayVEC(&rv);
+	if (world->Hit(rv, FInterval(0, R_INFINITY_F), hitRecord)) {
+		vec3 direction = random_on_hemisphere(vec3(hitRecord.normal));
+		return 0.5 * ray_colorFLTPrecision(ray(vec3(hitRecord.p), direction), InDepth - 1, world);
+	}
+
+	vec3 unit_direction = unit_vector(r.direction());
+	auto a = 0.5 * (unit_direction.y() + 1.0);
+	return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
+}
+#endif WITH_REFERENCE
 
 CameraFLT CameraFLT::FromSelectedCameraData(const float InAspectRation, const float InFocalLength, const XMFLOAT3& InCameraCenter, const int32_t InImageWidth, const float InViewportHeigth)
 {
@@ -74,6 +130,7 @@ void AppNmsp::XMLoadCamera(CameraVEC* InOutPDestination, const CameraFLT* InPSou
 	InOutPDestination->FocalLength = InPSource->FocalLength;
 	InOutPDestination->SamplesPerPixel = InPSource->SamplesPerPixel;
 	InOutPDestination->PixelSamplesScale = InPSource->PixelSamplesScale;
+	InOutPDestination->MaxDepth = InPSource->MaxDepth;
 }
 
 void AppNmsp::XMStoreCamera(CameraFLT* InOutPDestination, const CameraVEC* InPSource)
@@ -94,6 +151,7 @@ void AppNmsp::XMStoreCamera(CameraFLT* InOutPDestination, const CameraVEC* InPSo
 	InOutPDestination->FocalLength = InPSource->FocalLength;
 	InOutPDestination->SamplesPerPixel = InPSource->SamplesPerPixel;
 	InOutPDestination->PixelSamplesScale = InPSource->PixelSamplesScale;
+	InOutPDestination->MaxDepth	= InPSource->MaxDepth;
 }
 
 inline XMVECTOR XM_CALLCONV SampleSquare(FXMVECTOR InPixelDeltaU, FXMVECTOR InPixelDeltaV)
@@ -102,19 +160,26 @@ inline XMVECTOR XM_CALLCONV SampleSquare(FXMVECTOR InPixelDeltaU, FXMVECTOR InPi
 	return (XMVectorScale(InPixelDeltaU, localDistrib()) + (XMVectorScale(InPixelDeltaV, localDistrib())));
 }
 
-inline XMVECTOR XM_CALLCONV RayColor(const RayVECAnyNrm* InPlRay, const HList* InWorld)
+XMVECTOR XM_CALLCONV RayColor(const RayVECAnyNrm* InPlRay, const int32_t InDepth, const HList* InWorld)
 {
-	static constexpr Interval DefaultInterval = Interval(0, R_INFINITY_F);
+	if (InDepth <= 0) { return VECTOR_ZERO; }
+	static constexpr FInterval DefaultInterval = FInterval(0, R_INFINITY_F);
 	HitRecord hitRecord;
 
 	if (InWorld->Hit(*InPlRay, DefaultInterval, /*Out*/ hitRecord))
 	{
-		XMVECTOR NormalAtHitPoint = XMLoadFloat3(&hitRecord.normal);
+		static thread_local LocalVectorDistributionUnitSphereDistribution distrib;
+		
+		XMVECTOR randomNormalAtHitPoint = distrib.RandomOnHemisphere(XMLoadFloat3(&hitRecord.normal));
 
 		//Use this line to get RayTracingInOneWeekend color result
-		NormalAtHitPoint = DEBUG_ToRightHandedCartesianCoordinate(NormalAtHitPoint);
-
-		return XMVectorScale(NormalAtHitPoint + VECTOR_ONE, 0.5f);
+		//randomNormalAtHitPoint = DEBUG_ToRightHandedCartesianCoordinate(randomNormalAtHitPoint);
+		RayVECAnyNrm rayDepth
+		{
+			.Origin = XMLoadFloat3(&hitRecord.p),
+			.Direction = randomNormalAtHitPoint
+		};
+		return XMVectorScale(RayColor(&rayDepth, InDepth - 1, InWorld), 0.5f );
 	}
 	else
 	{
@@ -198,20 +263,34 @@ void AppNmsp::Camera::Render(const HList* InWorld, Picture* InTarget)
 			float xf = (float)x;
 			XMVECTOR lPixelCenter = lPixel00Pos + (xf * lPixelDeltaU) + (yf * lPixelDeltaV);
 
+#if USE_DOUBLE_PRECISION
+			color pixel_color(0, 0, 0);
+#endif
 			XMVECTOR resultColor = { 0.f, 0.f, 0.f, 0.f };
 			for (int32_t sample = 0; sample < m_cameraData.SamplesPerPixel; sample++) 
 			{
-
 				XMVECTOR lRayDir = /*PixelSample*/(lPixelCenter + SampleSquare(lPixelDeltaU, lPixelDeltaV)) - /*RayOrigin*/lCameraCenter;
 				RayVECLength lRay
 				{
 					.Origin = lCameraCenter,
 					.Direction = lRayDir
 				};
-				resultColor += RayColor(&lRay, InWorld);
+#if USE_DOUBLE_PRECISION
+				ray rVec3 = get_ray(*this, x, y);
+				pixel_color += ray_colorFLTPrecision(rVec3, m_cameraData.MaxDepth, InWorld);
+#else
+				resultColor += RayColor(&lRay, m_cameraData.MaxDepth, InWorld);
+#endif
 			}
-
+#if USE_DOUBLE_PRECISION
+			XMFLOAT3 resFLT3 = pixel_color.ToFLT3();
+			pixel_color = pixel_color * m_cameraData.PixelSamplesScale;
+			resultColor = XMLoadFloat3(&resFLT3);
+			InTarget->m_pixelDBLs[InTarget->mPixelDBLIDX(x, y)] = pictureColor{ pixel_color.e[0], pixel_color.e[1], pixel_color.e[2] };
+#else			
 			XMStoreFloat3(&InTarget->operator[]({ x, y }), XMVectorScale(resultColor, m_cameraData.PixelSamplesScale));
+
+#endif
 		}
 	}
 }

@@ -19,6 +19,7 @@ constexpr DirectX::XMVECTOR YZ_VECTOR_MASK = { 0.f, 1.f, 1.f , 0.f };
 
 constexpr DirectX::XMVECTOR XYZ_VECTOR_MASK = { 1.f, 1.f, 1.f , 0.f };
 
+constexpr DirectX::XMVECTOR VECTOR_ZERO = { 0.f, 0.f, 0.f , 0.f };
 constexpr DirectX::XMVECTOR VECTOR_ONE = { 1.f, 1.f, 1.f , 1.f };
 
 //#define std::numeric_limits<float>::epsilon FLT_EPSILON

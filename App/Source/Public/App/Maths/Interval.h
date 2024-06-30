@@ -4,13 +4,14 @@
 
 namespace AppNmsp
 {
+    template <typename TReal>
     struct Interval final
     {
     public:
-        float Min;
-        float Max;
+        TReal Min;
+        TReal Max;
     public:
-        inline constexpr float size() const {
+        inline constexpr TReal size() const {
             return Max - Min;
         }
 
@@ -19,7 +20,7 @@ namespace AppNmsp
         /// </summary>
         /// <param name="InValue">Value to test</param>
         /// <returns>Is value inside the given range (including extremities) ?</returns>
-        inline constexpr bool Contains(const float InValue) const {
+        inline constexpr bool Contains(const TReal InValue) const {
             return Min <= InValue && InValue <= Max;
         }
 
@@ -28,16 +29,22 @@ namespace AppNmsp
         /// </summary>
         /// <param name="InValue">Value to test</param>
         /// <returns>Is value inside the given range (excluding extremities) ?</returns>
-        inline constexpr bool Surrounds(const float InValue) const {
+        inline constexpr bool Surrounds(const TReal InValue) const {
             return Min < InValue && InValue < Max;
         }
-        inline constexpr float Clamp(const float InValue) const { return std::clamp<float>(InValue, Min, Max); }
+        inline constexpr TReal Clamp(const TReal InValue) const { return std::clamp<TReal>(InValue, Min, Max); }
     public:
 
-        constexpr Interval() : Min(+R_INFINITY_F), Max(-R_INFINITY_F) {}
-        constexpr Interval(const float InMin, const float InMax) : Min(InMin), Max(InMax) {}
+        constexpr Interval() : Min(+std::numeric_limits<TReal>::infinity()), Max(-std::numeric_limits<TReal>::infinity()) {}
+        constexpr Interval(const TReal InMin, const TReal InMax) : Min(InMin), Max(InMax) {}
     };
 
-    constexpr Interval INTERVAL_EMPTY = Interval(+R_INFINITY_F, -R_INFINITY_F);
-    constexpr Interval INTERVAL_UNIVERSE = Interval(-R_INFINITY_F, +R_INFINITY_F);
+    using FInterval = Interval<float>;
+    using DInterval = Interval<double>;
+
+    constexpr FInterval INTERVAL_EMPTY      = FInterval(+std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity());
+    constexpr FInterval INTERVAL_UNIVERSE   = FInterval(-std::numeric_limits<float>::infinity(), +std::numeric_limits<float>::infinity());
+
+
+
 }

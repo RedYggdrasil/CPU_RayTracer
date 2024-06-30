@@ -3,7 +3,7 @@
 using namespace AppNmsp;
 using namespace DirectX;
 
-bool HSphere::Hit(const RayVECAnyNrm& InRayVec, const Interval InRayInterval, HitRecord& OutRecord) const
+bool HSphere::Hit(const RayVECAnyNrm& InRayVec, const FInterval InRayInterval, HitRecord& OutRecord) const
 {
     XMVECTOR lCenter = XMLoadFloat3(&m_center);
     XMVECTOR oc = lCenter - InRayVec.Origin;
@@ -32,9 +32,45 @@ bool HSphere::Hit(const RayVECAnyNrm& InRayVec, const Interval InRayInterval, Hi
 
     OutRecord.t = root;
     XMVECTOR lHitLocation = InRayVec.At(OutRecord.t);
-    XMStoreFloat3(&OutRecord.p, lHitLocation);
 
     XMVECTOR OutwardNormal = (lHitLocation - lCenter) / m_radius;
+
     OutRecord.SetFaceNormal(InRayVec, OutwardNormal);
+
+    //Hit location is offseted to avoid float imprecision causing ray origin to be under the surface and imediatly rebouncing on it, causing weird circular artifacts.
+    lHitLocation = lHitLocation + (OutwardNormal * 0.0001f * (OutRecord.frontFace? 1.f:-1.f));
+
+    XMStoreFloat3(&OutRecord.p, lHitLocation);
     return true;
 }
+
+#if WITH_REFERENCE
+bool HSphere::Hit(const ray& InRay, const DInterval InRayInterval, hit_record& OutRecord) const
+{
+    vec3 oc = vec3(m_center) - InRay.origin();
+    auto a = InRay.direction().length_squared();
+    auto h = dot(InRay.direction(), oc);
+    auto c = oc.length_squared() - (double)m_radius * (double)m_radius;
+
+    auto discriminant = h * h - a * c;
+    if (discriminant < 0)
+        return false;
+
+    auto sqrtd = sqrt(discriminant);
+
+    // Find the nearest root that lies in the acceptable range.
+    auto root = (h - sqrtd) / a;
+    if (!InRayInterval.Surrounds(root)) {
+        root = (h + sqrtd) / a;
+        if (!InRayInterval.Surrounds(root))
+            return false;
+    }
+
+    OutRecord.t = root;
+    OutRecord.p = InRay.at(OutRecord.t);
+    vec3 outward_normal = (OutRecord.p - vec3(m_center)) / (double)m_radius;
+    OutRecord.set_face_normal(InRay, outward_normal);
+
+    return true;
+}
+#endif

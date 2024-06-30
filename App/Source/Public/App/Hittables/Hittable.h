@@ -34,6 +34,23 @@ namespace AppNmsp
         }
     };
 
+#if WITH_REFERENCE
+    class hit_record {
+    public:
+        point3 p;
+        vec3 normal;
+        double t;
+        bool front_face;
+
+        void set_face_normal(const ray& r, const vec3& outward_normal) {
+            // Sets the hit record normal vector.
+            // NOTE: the parameter `outward_normal` is assumed to have unit length.
+
+            front_face = dot(r.direction(), outward_normal) < 0;
+            normal = front_face ? outward_normal : -outward_normal;
+        }
+    };
+#endif
 
     //TODO : Reword this into a enum-union format
     class Hittable
@@ -44,8 +61,11 @@ namespace AppNmsp
         inline bool operator<(const Hittable& InOther) const 
         { return HType < InOther.HType; }
     public:
-        virtual bool Hit(const RayVECAnyNrm& InRayVec, const Interval InRayInterval, HitRecord& OutRecord) const R_PURE;
-    
+        virtual bool Hit(const RayVECAnyNrm& InRayVec, const FInterval InRayInterval, HitRecord& OutRecord) const R_PURE;
+#if WITH_REFERENCE
+        virtual bool Hit(const ray& InRay, const DInterval InRayInterval, hit_record& OutRecord) const R_PURE;
+#endif
+
     protected:
         Hittable(const HittableType InHType) : HType(InHType) {};
     public:

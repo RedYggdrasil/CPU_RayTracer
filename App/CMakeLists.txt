@@ -14,6 +14,7 @@ set(APP_SOURCES
   ${APP_PRIVTE_SRC}main.cpp
   ${APP_PUBLIC_SRC}/Defines/Defines.h			${APP_PRIVTE_SRC}/Defines/Defines.cpp
   ${APP_PUBLIC_SRC}/Debug/DebugMath.h			${APP_PRIVTE_SRC}/Debug/DebugMath.cpp
+  ${APP_PUBLIC_SRC}/Debug/DebugReference.h		${APP_PRIVTE_SRC}/Debug/DebugReference.cpp
   ${APP_PUBLIC_SRC}/Hittables/Hittable.h		${APP_PRIVTE_SRC}/Hittables/Hittable.cpp
   ${APP_PUBLIC_SRC}/Hittables/HList.h			${APP_PRIVTE_SRC}/Hittables/HList.cpp
   ${APP_PUBLIC_SRC}/Hittables/HSphere.h			${APP_PRIVTE_SRC}/Hittables/HSphere.cpp
@@ -22,6 +23,7 @@ set(APP_SOURCES
   ${APP_PUBLIC_SRC}/Maths/Ray.h					${APP_PRIVTE_SRC}/Maths/Ray.cpp
   ${APP_PUBLIC_SRC}/Maths/RMath.h				${APP_PRIVTE_SRC}/Maths/RMath.cpp
   ${APP_PUBLIC_SRC}/Maths/RMathCol.h			${APP_PRIVTE_SRC}/Maths/RMathCol.cpp
+  ${APP_PUBLIC_SRC}/Maths/RMathRand.h			${APP_PRIVTE_SRC}/Maths/RMathRand.cpp
   ${APP_PUBLIC_SRC}/SystemElement/Picture.h		${APP_PRIVTE_SRC}/SystemElement/Picture.cpp
   ${APP_PUBLIC_SRC}/Tools/REnum.h				${APP_PRIVTE_SRC}/Tools/REnum.cpp
   ${APP_PUBLIC_SRC}/Tools/RLog.h				${APP_PRIVTE_SRC}/Tools/RLog.cpp
