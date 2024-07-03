@@ -3,9 +3,13 @@
 
 //This option enable ray bouncing off of a surface to have an origin point pushed outward by a small amount to ensure no collision with current surface.
 #define OBJECT_RAY_HIT_OUTWARD false
+constexpr bool bOBJECT_RAY_HIT_OUTWARD = OBJECT_RAY_HIT_OUTWARD;
 
 #if OBJECT_RAY_HIT_OUTWARD
 constexpr float OBJECT_RAY_HIT_AMOUNT = 0.001f;
+constexpr float OBJECT_RAY_INTERVAL_AMOUNT = 0.0f;
+OBJECT_RAY_INTERVAL_AMOUNT
 #else
 constexpr float OBJECT_RAY_HIT_AMOUNT = 0.f;
+constexpr float OBJECT_RAY_INTERVAL_AMOUNT = 0.001f;
 #endif
