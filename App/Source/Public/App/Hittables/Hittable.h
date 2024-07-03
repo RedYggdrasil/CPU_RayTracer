@@ -20,6 +20,7 @@ namespace AppNmsp
         DirectX::XMFLOAT3 ImpactPoint;
         //The surface pointing against the incoming ray (outer or inner, based on 'bFrontFace' value)
         DirectX::XMFLOAT3 SurfaceNormal;
+        std::shared_ptr<Material> SurfaceMaterial;
         //The "time" of ray, meaning how far the impact point is form the ray's origin
         float IncomingRayTValue;
         //Is the given normal pointing out of the object (true) or inside of it (false) ?
