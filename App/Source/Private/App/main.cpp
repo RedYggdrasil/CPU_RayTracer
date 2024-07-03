@@ -1,5 +1,4 @@
 #include "App/pch.h"
-#include "Gen_App/Config/AppConfig.h"
 
 #include "App/Maths/Camera.h"
 #include "App/Maths/RMath.h"

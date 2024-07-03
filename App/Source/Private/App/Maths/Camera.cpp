@@ -163,7 +163,7 @@ inline XMVECTOR XM_CALLCONV SampleSquare(FXMVECTOR InPixelDeltaU, FXMVECTOR InPi
 XMVECTOR XM_CALLCONV RayColor(const RayVECAnyNrm* InPlRay, const int32_t InDepth, const HList* InWorld)
 {
 	if (InDepth <= 0) { return VECTOR_ZERO; }
-	static constexpr FInterval DefaultInterval = FInterval(0, R_INFINITY_F);
+	static constexpr FInterval DefaultInterval = FInterval(OBJECT_RAY_INTERVAL_AMOUNT, R_INFINITY_F);
 	HitRecord hitRecord;
 
 	if (InWorld->Hit(*InPlRay, DefaultInterval, /*Out*/ hitRecord))

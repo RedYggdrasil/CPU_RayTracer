@@ -38,7 +38,11 @@ bool HSphere::Hit(const RayVECAnyNrm& InRayVec, const FInterval InRayInterval, H
     OutRecord.SetFaceNormal(InRayVec, OutwardNormal);
 
     //Hit location is offseted to avoid float imprecision causing ray origin to be under the surface and imediatly rebouncing on it, causing weird circular artifacts.
-    lHitLocation = lHitLocation + (OutwardNormal * 0.0001f * (OutRecord.frontFace? 1.f:-1.f));
+    lHitLocation = lHitLocation
+#if OBJECT_RAY_HIT_OUTWARD
+        +(OutwardNormal * OBJECT_RAY_HIT_AMOUNT * (OutRecord.frontFace ? 1.f : -1.f))
+#endif
+        ;
 
     XMStoreFloat3(&OutRecord.p, lHitLocation);
     return true;

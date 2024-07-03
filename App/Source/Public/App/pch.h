@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Gen_App/Config/AppConfig.h"
+
 #define NOMINMAX
 #include <Windows.h>
 #include <DirectXMath.h>
