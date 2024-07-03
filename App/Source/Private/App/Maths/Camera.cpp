@@ -170,14 +170,14 @@ XMVECTOR XM_CALLCONV RayColor(const RayVECAnyNrm* InPlRay, const int32_t InDepth
 	{
 		static thread_local LocalVectorDistributionUnitSphereDistribution distrib;
 		
-		XMVECTOR randomNormalAtHitPoint = distrib.RandomOnHemisphere(XMLoadFloat3(&hitRecord.normal));
+		XMVECTOR randomScatterNormalAtHitPoint = distrib.LambertianDistributionOnHemisphere(XMLoadFloat3(&hitRecord.normal));
 
 		//Use this line to get RayTracingInOneWeekend color result
 		//randomNormalAtHitPoint = DEBUG_ToRightHandedCartesianCoordinate(randomNormalAtHitPoint);
 		RayVECAnyNrm rayDepth
 		{
 			.Origin = XMLoadFloat3(&hitRecord.p),
-			.Direction = randomNormalAtHitPoint
+			.Direction = randomScatterNormalAtHitPoint
 		};
 		return XMVectorScale(RayColor(&rayDepth, InDepth - 1, InWorld), 0.5f );
 	}

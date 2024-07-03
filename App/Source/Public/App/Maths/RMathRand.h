@@ -120,6 +120,11 @@ namespace AppNmsp
 				return DirectX::XMVectorSubtract(VECTOR_ZERO, onUnitSphere);
 			}
 		}
+
+		inline DirectX::XMVECTOR XM_CALLCONV LambertianDistributionOnHemisphere(DirectX::FXMVECTOR InNormal) 
+		{
+			return DirectX::XMVectorAdd(InNormal, RandomUnitVector());
+		}
 	public:
 		LocalVectorDistributionUnitSphereDistribution();
 	};
