@@ -43,6 +43,17 @@ const std::string_view ByteView(const void* InData, const size_t InSize)
 	return std::string_view(reinterpret_cast<const char*>(InData), InSize);
 };
 
+inline constexpr double LinearSpaceToGammaSpace2(const double InLinearValue)
+{
+	if (InLinearValue > 0.f) { return std::sqrt(InLinearValue); }
+	return 0.f;
+}
+
+inline constexpr float LinearSpaceToGammaSpace2f(const float InLinearValue)
+{
+	if (InLinearValue > 0.f) { return R_SQRTF(InLinearValue); }
+	return 0.f;
+}
 void AppNmsp::Picture::WriteToDisk(bool bInVerbose)
 {
 	std::ofstream MyFile(m_path, std::ios::out | std::ios::binary);
@@ -54,14 +65,14 @@ void AppNmsp::Picture::WriteToDisk(bool bInVerbose)
 	{
 #if USE_DOUBLE_PRECISION
 		MyFile
-			<< uint8_t(256.0 * intencityDBL.Clamp(m_pixelDBLs[i].x))
-			<< uint8_t(256.0 * intencityDBL.Clamp(m_pixelDBLs[i].y))
-			<< uint8_t(256.0 * intencityDBL.Clamp(m_pixelDBLs[i].z));
+			<< uint8_t(256.0 * intencityDBL.Clamp(LinearSpaceToGammaSpace2(m_pixelDBLs[i].x)))
+			<< uint8_t(256.0 * intencityDBL.Clamp(LinearSpaceToGammaSpace2(m_pixelDBLs[i].y)))
+			<< uint8_t(256.0 * intencityDBL.Clamp(LinearSpaceToGammaSpace2(m_pixelDBLs[i].z)));
 #else
 		MyFile
-			<< uint8_t(256.f * intencity.Clamp(m_pixels[i].x))
-			<< uint8_t(256.f * intencity.Clamp(m_pixels[i].y))
-			<< uint8_t(256.f * intencity.Clamp(m_pixels[i].z));
+			<< uint8_t(256.f * intencity.Clamp(LinearSpaceToGammaSpace2f(m_pixels[i].x)))
+			<< uint8_t(256.f * intencity.Clamp(LinearSpaceToGammaSpace2f(m_pixels[i].y)))
+			<< uint8_t(256.f * intencity.Clamp(LinearSpaceToGammaSpace2f(m_pixels[i].z)));
 #endif
 	}
 	//uint8_t* data = &m_pixels[0].RGB[0];
