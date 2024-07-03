@@ -30,8 +30,8 @@ bool HSphere::Hit(const RayVECAnyNrm& InRayVec, const FInterval InRayInterval, H
         }
     }
 
-    OutRecord.t = root;
-    XMVECTOR lHitLocation = InRayVec.At(OutRecord.t);
+    OutRecord.IncomingRayTValue = root;
+    XMVECTOR lHitLocation = InRayVec.At(OutRecord.IncomingRayTValue);
 
     XMVECTOR OutwardNormal = (lHitLocation - lCenter) / m_radius;
 
@@ -44,7 +44,7 @@ bool HSphere::Hit(const RayVECAnyNrm& InRayVec, const FInterval InRayInterval, H
 #endif
         ;
 
-    XMStoreFloat3(&OutRecord.p, lHitLocation);
+    XMStoreFloat3(&OutRecord.ImpactPoint, lHitLocation);
     return true;
 }
 

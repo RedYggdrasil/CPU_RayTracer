@@ -14,7 +14,7 @@ bool HList::Hit(const RayVECAnyNrm& InRayVec, const FInterval InRayInterval, Hit
         if (hittable->Hit(InRayVec, FInterval(InRayInterval.Min, ClosestResult), localRecord))
         {
             bDidHit = true;
-            ClosestResult = localRecord.t;
+            ClosestResult = localRecord.IncomingRayTValue;
             OutRecord = localRecord;
         }
     }

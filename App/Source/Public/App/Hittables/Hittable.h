@@ -14,12 +14,16 @@ RS_DEFINE_ENUM(HittableType);
 
 namespace AppNmsp
 {
+    class Material;
     class HitRecord {
     public:
-        DirectX::XMFLOAT3 p;
-        DirectX::XMFLOAT3 normal;
-        float t;
-        bool frontFace;
+        DirectX::XMFLOAT3 ImpactPoint;
+        //The surface pointing against the incoming ray (outer or inner, based on 'bFrontFace' value)
+        DirectX::XMFLOAT3 SurfaceNormal;
+        //The "time" of ray, meaning how far the impact point is form the ray's origin
+        float IncomingRayTValue;
+        //Is the given normal pointing out of the object (true) or inside of it (false) ?
+        bool bFrontFace;
 
         /// <summary>
         /// Set frontFace and normal parameter
@@ -29,8 +33,8 @@ namespace AppNmsp
         /// <returns></returns>
         inline void XM_CALLCONV SetFaceNormal(const RayVECAnyNrm& InRay, DirectX::FXMVECTOR InOutwardNormalNrmlzd)
         {
-            frontFace = DirectX::XMVectorGetX(DirectX::XMVector3Dot(InRay.Direction, InOutwardNormalNrmlzd)) < 0;
-            DirectX::XMStoreFloat3(&normal, frontFace ? InOutwardNormalNrmlzd : DirectX::XMVectorScale(InOutwardNormalNrmlzd, -1.f));
+            bFrontFace = DirectX::XMVectorGetX(DirectX::XMVector3Dot(InRay.Direction, InOutwardNormalNrmlzd)) < 0;
+            DirectX::XMStoreFloat3(&SurfaceNormal, bFrontFace ? InOutwardNormalNrmlzd : DirectX::XMVectorScale(InOutwardNormalNrmlzd, -1.f));
         }
     };
 

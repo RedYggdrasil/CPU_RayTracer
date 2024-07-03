@@ -58,8 +58,8 @@ color ray_colorFLTPrecision(const ray& r, const int32_t InDepth, const HList* wo
 	RayVEC rv;
 	r.ToRayVEC(&rv);
 	if (world->Hit(rv, FInterval(0, R_INFINITY_F), hitRecord)) {
-		vec3 direction = random_on_hemisphere(vec3(hitRecord.normal));
-		return 0.5 * ray_colorFLTPrecision(ray(vec3(hitRecord.p), direction), InDepth - 1, world);
+		vec3 direction = random_on_hemisphere(vec3(hitRecord.SurfaceNormal));
+		return 0.5 * ray_colorFLTPrecision(ray(vec3(hitRecord.ImpactPoint), direction), InDepth - 1, world);
 	}
 
 	vec3 unit_direction = unit_vector(r.direction());
@@ -170,13 +170,13 @@ XMVECTOR XM_CALLCONV RayColor(const RayVECAnyNrm* InPlRay, const int32_t InDepth
 	{
 		static thread_local LocalVectorDistributionUnitSphereDistribution distrib;
 		
-		XMVECTOR randomScatterNormalAtHitPoint = distrib.LambertianDistributionOnHemisphere(XMLoadFloat3(&hitRecord.normal));
+		XMVECTOR randomScatterNormalAtHitPoint = distrib.LambertianDistributionOnHemisphere(XMLoadFloat3(&hitRecord.SurfaceNormal));
 
 		//Use this line to get RayTracingInOneWeekend color result
 		//randomNormalAtHitPoint = DEBUG_ToRightHandedCartesianCoordinate(randomNormalAtHitPoint);
 		RayVECAnyNrm rayDepth
 		{
-			.Origin = XMLoadFloat3(&hitRecord.p),
+			.Origin = XMLoadFloat3(&hitRecord.ImpactPoint),
 			.Direction = randomScatterNormalAtHitPoint
 		};
 		return XMVectorScale(RayColor(&rayDepth, InDepth - 1, InWorld), 0.5f );
