@@ -75,6 +75,7 @@ bool HSphere::Hit(const ray& InRay, const DInterval InRayInterval, hit_record& O
     OutRecord.p = InRay.at(OutRecord.t);
     vec3 outward_normal = (OutRecord.p - vec3(m_center)) / (double)m_radius;
     OutRecord.set_face_normal(InRay, outward_normal);
+    OutRecord.mat = m_material;
 
     return true;
 }

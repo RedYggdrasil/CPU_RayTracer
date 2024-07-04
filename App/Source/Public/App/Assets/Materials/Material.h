@@ -18,7 +18,7 @@ namespace AppNmsp
             return false;
         }
 #if WITH_REFERENCE
-        virtual bool Scatter(const ray& InRayVec, const hit_record& InRecord, color& OutAttenuation, ray& OutRayScattered) const
+        virtual bool scatter(const ray& InRayVec, const hit_record& InRecord, color& OutAttenuation, ray& OutRayScattered) const
         {
             return false;
         }

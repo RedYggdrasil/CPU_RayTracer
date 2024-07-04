@@ -24,6 +24,14 @@ using XMVECTOR4 = DirectX::XMVECTOR;
 #define R_PURE = 0
 #define R_PURE_OVERRIDE override
 
+#define STATIC_CLASS_R5(ClassName)\
+public:\
+ClassName() = delete;\
+ClassName(const ClassName& _) = delete;\
+ClassName& operator=(const ClassName& other) = delete;\
+ClassName(ClassName&& other) noexcept = delete;\
+ClassName& operator=(ClassName&& other) noexcept = delete;
+
 template<typename T>
 using UT = std::underlying_type<T>::type;
 

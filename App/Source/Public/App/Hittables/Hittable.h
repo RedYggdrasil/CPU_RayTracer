@@ -15,7 +15,8 @@ RS_DEFINE_ENUM(HittableType);
 namespace AppNmsp
 {
     class Material;
-    class HitRecord {
+    class HitRecord 
+    {
     public:
         DirectX::XMFLOAT3 ImpactPoint;
         //The surface pointing against the incoming ray (outer or inner, based on 'bFrontFace' value)
@@ -44,6 +45,7 @@ namespace AppNmsp
     public:
         point3 p;
         vec3 normal;
+        std::shared_ptr<Material> mat;
         double t;
         bool front_face;
 

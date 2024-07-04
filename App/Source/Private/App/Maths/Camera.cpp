@@ -1,4 +1,6 @@
 #include "App/Maths/Camera.h"
+
+#include "App/Assets/Materials/Material.h"
 #include "App/Maths/Interval.h"
 #include "App/Maths/RMath.h"
 #include "App/Maths/RMathRand.h"
@@ -40,6 +42,12 @@ color ray_color(const ray& r, const int32_t InDepth, const HList* world)
 	}
 	hit_record hitRecord;
 	if (world->Hit(r, DInterval(0, std::numeric_limits<double>::infinity()), hitRecord)) {
+		ray scattered;
+		color attenuation;
+		if (hitRecord.mat->scatter(r, hitRecord, attenuation, scattered))
+			return attenuation * ray_color(scattered, InDepth - 1, world);
+		return color(0, 0, 0);
+
 		vec3 direction = random_on_hemisphere(hitRecord.normal);
 		return 0.5 * ray_color(ray(hitRecord.p, direction), InDepth - 1, world);
 	}
@@ -168,18 +176,15 @@ XMVECTOR XM_CALLCONV RayColor(const RayVECAnyNrm* InPlRay, const int32_t InDepth
 
 	if (InWorld->Hit(*InPlRay, DefaultInterval, /*Out*/ hitRecord))
 	{
-		static thread_local LocalVectorDistributionUnitSphereDistribution distrib;
-		
-		XMVECTOR randomScatterNormalAtHitPoint = distrib.LambertianDistributionOnHemisphere(XMLoadFloat3(&hitRecord.SurfaceNormal));
+		RayVECAnyNrm rayScaterred;
+		DirectX::XMFLOAT3 colorAttenuation;
 
-		//Use this line to get RayTracingInOneWeekend color result
-		//randomNormalAtHitPoint = DEBUG_ToRightHandedCartesianCoordinate(randomNormalAtHitPoint);
-		RayVECAnyNrm rayDepth
+		if (hitRecord.SurfaceMaterial->Scatter(*InPlRay, hitRecord, /*Out*/colorAttenuation, /*Out*/rayScaterred))
 		{
-			.Origin = XMLoadFloat3(&hitRecord.ImpactPoint),
-			.Direction = randomScatterNormalAtHitPoint
+			XMVECTOR lColorAttenuation = XMLoadFloat3(&colorAttenuation);
+			return lColorAttenuation * RayColor(&rayScaterred, InDepth - 1, InWorld);
 		};
-		return XMVectorScale(RayColor(&rayDepth, InDepth - 1, InWorld), 0.5f );
+		return VECTOR_ZERO;
 	}
 	else
 	{

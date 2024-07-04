@@ -4,14 +4,14 @@
 namespace AppNmsp
 {
     /// <summary>
-    /// Simplified Lambertian material than always scatter light
+    /// metal material
     /// </summary>
-    class LambertianMat : public Material 
+    class MetalMat : public Material
     {
     private:
         DirectX::XMFLOAT3 m_albedo;
     public:
-        LambertianMat(const DirectX::XMFLOAT3& InAlbedo) : m_albedo(InAlbedo) {}
+        MetalMat(const DirectX::XMFLOAT3& InAlbedo) : m_albedo(InAlbedo) {}
 
         virtual bool Scatter(const RayVECAnyNrm& InRayVec, const HitRecord& InRecord, DirectX::XMFLOAT3& OutAttenuationColor, RayVECAnyNrm& OutRayScattered) const override;
 #if WITH_REFERENCE

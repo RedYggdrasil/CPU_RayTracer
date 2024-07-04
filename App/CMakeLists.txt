@@ -24,8 +24,10 @@ set(APP_SOURCES
   ${APP_PUBLIC_SRC}/Maths/RMath.h						${APP_PRIVTE_SRC}/Maths/RMath.cpp
   ${APP_PUBLIC_SRC}/Maths/RMathCol.h					${APP_PRIVTE_SRC}/Maths/RMathCol.cpp
   ${APP_PUBLIC_SRC}/Maths/RMathRand.h					${APP_PRIVTE_SRC}/Maths/RMathRand.cpp
+  ${APP_PUBLIC_SRC}/Maths/RMathGeo.h					${APP_PRIVTE_SRC}/Maths/RMathGeo.cpp
   ${APP_PUBLIC_SRC}/Assets/Materials/Material.h			${APP_PRIVTE_SRC}/Assets/Materials/Material.cpp
   ${APP_PUBLIC_SRC}/Assets/Materials/LambertianMat.h	${APP_PRIVTE_SRC}/Assets/Materials/LambertianMat.cpp 
+  ${APP_PUBLIC_SRC}/Assets/Materials/MetalMat.h			${APP_PRIVTE_SRC}/Assets/Materials/MetalMat.cpp 
   ${APP_PUBLIC_SRC}/SystemElement/Picture.h				${APP_PRIVTE_SRC}/SystemElement/Picture.cpp
   ${APP_PUBLIC_SRC}/Tools/REnum.h						${APP_PRIVTE_SRC}/Tools/REnum.cpp
   ${APP_PUBLIC_SRC}/Tools/RLog.h						${APP_PRIVTE_SRC}/Tools/RLog.cpp

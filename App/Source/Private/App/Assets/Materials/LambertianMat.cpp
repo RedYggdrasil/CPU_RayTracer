@@ -26,11 +26,11 @@ bool LambertianMat::Scatter(const RayVECAnyNrm& InRayVec, const HitRecord& InRec
 }
 
 #if WITH_REFERENCE
-bool LambertianMat::Scatter(const ray& InRayVec, const hit_record& InRecord, color& OutAttenuation, ray& OutRayScattered) const
+bool LambertianMat::scatter(const ray& InRayVec, const hit_record& InRecord, color& OutAttenuation, ray& OutRayScattered) const
 {
     auto scatter_direction = InRecord.normal + random_unit_vector();
-    OutRayScattered = ray(rec.p, scatter_direction);
-    OutAttenuationColor = m_albedo;
+    OutRayScattered = ray(InRecord.p, scatter_direction);
+    OutAttenuation = m_albedo;
     return true;
 }
 #endif
