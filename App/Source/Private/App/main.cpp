@@ -45,8 +45,8 @@ int main(int argc, char** argv)
 
 	std::shared_ptr<Material> materialGround	= std::make_shared<LambertianMat>	(XMFLOAT3{ 0.8f, 0.8f, 0.0f });
 	std::shared_ptr<Material> materialCenter	= std::make_shared<LambertianMat>	(XMFLOAT3{ 0.1f, 0.2f, 0.5f });
-	std::shared_ptr<Material> materialLeft		= std::make_shared<MetalMat>		(XMFLOAT3{ 0.8f, 0.8f, 0.8f });
-	std::shared_ptr<Material> materialRight	= std::make_shared<MetalMat>		(XMFLOAT3{ 0.8f, 0.6f, 0.2f });
+	std::shared_ptr<Material> materialLeft		= std::make_shared<MetalMat>		(XMFLOAT3{ 0.8f, 0.8f, 0.8f }, 0.3f);
+	std::shared_ptr<Material> materialRight		= std::make_shared<MetalMat>		(XMFLOAT3{ 0.8f, 0.6f, 0.2f }, 1.0f);
 
 
 	world.Add(std::make_shared<HSphere>(XMFLOAT3{ 1.0f,  0.0f,  -100.5f }, 100.0f, materialGround	));
