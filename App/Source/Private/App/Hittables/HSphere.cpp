@@ -41,11 +41,12 @@ bool HSphere::Hit(const RayVECAnyNrm& InRayVec, const FInterval InRayInterval, H
     //Hit location is offseted to avoid float imprecision causing ray origin to be under the surface and imediatly rebouncing on it, causing weird circular artifacts.
     lHitLocation = lHitLocation
 #if OBJECT_RAY_HIT_OUTWARD
-        +(OutwardNormal * OBJECT_RAY_HIT_AMOUNT * (OutRecord.frontFace ? 1.f : -1.f))
+        +(OutwardNormal * OBJECT_RAY_HIT_AMOUNT * (OutRecord.bFrontFace ? 1.f : -1.f))
 #endif
         ;
 
     XMStoreFloat3(&OutRecord.ImpactPoint, lHitLocation);
+    OutRecord.OuterRefractionIndex = this->GetOuterRefractionIndex(lHitLocation);
     return true;
 }
 
@@ -76,7 +77,6 @@ bool HSphere::Hit(const ray& InRay, const DInterval InRayInterval, hit_record& O
     vec3 outward_normal = (OutRecord.p - vec3(m_center)) / (double)m_radius;
     OutRecord.set_face_normal(InRay, outward_normal);
     OutRecord.mat = m_material;
-
     return true;
 }
 #endif

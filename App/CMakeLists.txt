@@ -13,6 +13,7 @@ set(APP_SOURCES
   ${APP_PUBLIC_SRC}pch.h
   ${APP_PRIVTE_SRC}main.cpp
   ${APP_PUBLIC_SRC}/Defines/Defines.h					${APP_PRIVTE_SRC}/Defines/Defines.cpp
+  ${APP_PUBLIC_SRC}/Defines/RefractionIndexes.h			${APP_PRIVTE_SRC}/Defines/RefractionIndexes.cpp
   ${APP_PUBLIC_SRC}/Debug/DebugMath.h					${APP_PRIVTE_SRC}/Debug/DebugMath.cpp
   ${APP_PUBLIC_SRC}/Debug/DebugReference.h				${APP_PRIVTE_SRC}/Debug/DebugReference.cpp
   ${APP_PUBLIC_SRC}/Hittables/Hittable.h				${APP_PRIVTE_SRC}/Hittables/Hittable.cpp
@@ -28,6 +29,7 @@ set(APP_SOURCES
   ${APP_PUBLIC_SRC}/Assets/Materials/Material.h			${APP_PRIVTE_SRC}/Assets/Materials/Material.cpp
   ${APP_PUBLIC_SRC}/Assets/Materials/LambertianMat.h	${APP_PRIVTE_SRC}/Assets/Materials/LambertianMat.cpp 
   ${APP_PUBLIC_SRC}/Assets/Materials/MetalMat.h			${APP_PRIVTE_SRC}/Assets/Materials/MetalMat.cpp 
+  ${APP_PUBLIC_SRC}/Assets/Materials/DielectricMat.h	${APP_PRIVTE_SRC}/Assets/Materials/DielectricMat.cpp 
   ${APP_PUBLIC_SRC}/SystemElement/Picture.h				${APP_PRIVTE_SRC}/SystemElement/Picture.cpp
   ${APP_PUBLIC_SRC}/Tools/REnum.h						${APP_PRIVTE_SRC}/Tools/REnum.cpp
   ${APP_PUBLIC_SRC}/Tools/RLog.h						${APP_PRIVTE_SRC}/Tools/RLog.cpp

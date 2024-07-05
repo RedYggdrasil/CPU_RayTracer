@@ -18,8 +18,8 @@ namespace AppNmsp
         virtual bool Hit(const ray& InRay, const DInterval InRayInterval, hit_record& OutRecord) const R_PURE_OVERRIDE final;
 #endif
     public:
-        HSphere(const DirectX::XMFLOAT3& InCenter, float InRadius, std::shared_ptr<Material> InMaterial) 
-            : Hittable(CLASS_HTYPE), m_center(InCenter), m_radius(fmaxf(0, InRadius)), m_material(InMaterial)
+        HSphere(const DirectX::XMFLOAT3& InCenter, float InRadius, std::shared_ptr<Material> InMaterial, const HittableDepthType InDepthType, const float tmp_InOuterRefractionIndex)
+            : Hittable(CLASS_HTYPE, InDepthType, tmp_InOuterRefractionIndex), m_center(InCenter), m_radius(fmaxf(0, InRadius)), m_material(InMaterial)
         {
         }
     };

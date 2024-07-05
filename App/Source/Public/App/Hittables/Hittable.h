@@ -1,6 +1,7 @@
 #pragma once
 
 #include "App/pch.h"
+#include "App/Defines/RefractionIndexes.h"
 #include "App/Maths/Ray.h"
 #include "App/Maths/Interval.h"
 
@@ -11,6 +12,31 @@ enum class HittableType : uint8_t
     RENUM_MAX(HList)
 };
 RS_DEFINE_ENUM(HittableType);
+
+/// <summary>
+/// This enum represent the "depth" priority of any hittable, at point x,y,z in space, 
+/// if we are inside the world, an ocean, and an air bubble, is the world inside the air buble ? or the other way around ?
+/// this depthType represent a sort of priority list of that where HittableDepthType::Max is higher priority
+/// </summary>
+enum class HittableDepthType : uint8_t
+{
+    RENUM_MIN_VAL(Unknown, 0),
+    World0,
+    WorldLiquid0,
+    Container0,
+    Container1,
+    Container2,
+    RENUM_MAX(Solid3)
+};
+RS_DEFINE_ENUM(HittableDepthType);
+
+struct EnvironmentData
+{
+public:
+    size_t InstanceID;
+    float Refractance;
+    HittableDepthType Depth;
+};
 
 namespace AppNmsp
 {
@@ -26,7 +52,8 @@ namespace AppNmsp
         float IncomingRayTValue;
         //Is the given normal pointing out of the object (true) or inside of it (false) ?
         bool bFrontFace;
-
+        //The refraction index of the outer environment (bFrontFace ? RayInEnv : RayOutEnv)
+        float OuterRefractionIndex;
         /// <summary>
         /// Set frontFace and normal parameter
         /// </summary>
@@ -35,7 +62,7 @@ namespace AppNmsp
         /// <returns></returns>
         inline void XM_CALLCONV SetFaceNormal(const RayVECAnyNrm& InRay, DirectX::FXMVECTOR InOutwardNormalNrmlzd)
         {
-            bFrontFace = DirectX::XMVectorGetX(DirectX::XMVector3Dot(InRay.Direction, InOutwardNormalNrmlzd)) < 0;
+            bFrontFace = DirectX::XMVectorGetX(DirectX::XMVector3Dot(InRay.Direction, InOutwardNormalNrmlzd)) <= 0.f;
             DirectX::XMStoreFloat3(&SurfaceNormal, bFrontFace ? InOutwardNormalNrmlzd : DirectX::XMVectorScale(InOutwardNormalNrmlzd, -1.f));
         }
     };
@@ -62,19 +89,44 @@ namespace AppNmsp
     //TODO : Reword this into a enum-union format
     class Hittable
     {
+    protected:
+        inline static size_t TotalInstanceCount = std::numeric_limits<size_t>::max(); /*(First Preincrement loop back to 0)*/
     public:
         const HittableType HType;
+        const HittableDepthType HDepthType;
+        /*This is a temp value, in the future we will need to compute a list of overlapping items and
+        use that list to return a refraction index based on a exit point in space */
+        const float tmp_OuterRefractionIndex;
+        const size_t InstanceID;
         //Allow sorting by type
         inline bool operator<(const Hittable& InOther) const 
         { return HType < InOther.HType; }
     public:
+        EnvironmentData GenerateEnvironmentData() const
+        {
+            return EnvironmentData
+            {
+                .InstanceID = this->InstanceID,
+                .Refractance = this->GetInnerRefractionIndex(),
+                .Depth = HDepthType
+            };
+        }
+
+        virtual bool GetIsRefractable() const { return false; }
+        virtual float GetInnerRefractionIndex() const { return 0.0; }
+
+        /*TODO : Generate a list of overllaped collider associated with EnvironmentData and return refractance based on position*/
+        inline float GetOuterRefractionIndex(const DirectX::XMFLOAT3& InPosition) const { return tmp_OuterRefractionIndex; }
+        /*TODO : Generate a list of overllaped collider associated with EnvironmentData and return refractance based on position*/
+        inline float XM_CALLCONV GetOuterRefractionIndex(DirectX::FXMVECTOR InPosition) const { return tmp_OuterRefractionIndex; }
+
         virtual bool Hit(const RayVECAnyNrm& InRayVec, const FInterval InRayInterval, HitRecord& OutRecord) const R_PURE;
 #if WITH_REFERENCE
         virtual bool Hit(const ray& InRay, const DInterval InRayInterval, hit_record& OutRecord) const R_PURE;
 #endif
 
     protected:
-        Hittable(const HittableType InHType) : HType(InHType) {};
+        Hittable(const HittableType InHType, const HittableDepthType InDepthType, const float tmp_InOuterRefractionIndex) : HType(InHType), HDepthType(InDepthType), tmp_OuterRefractionIndex(tmp_InOuterRefractionIndex), InstanceID(++TotalInstanceCount) {};
     public:
         virtual ~Hittable() = default;
     };

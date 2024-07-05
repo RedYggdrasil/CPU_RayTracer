@@ -25,7 +25,7 @@ namespace AppNmsp
 #endif
 
     public:
-        HList() : Hittable(CLASS_HTYPE) {}
-        HList(std::shared_ptr<Hittable> InHittable) : Hittable(CLASS_HTYPE) { Add(InHittable); }
+        HList() : Hittable(CLASS_HTYPE, HittableDepthType::Unknown, RefractionIndex::Air) {}
+        HList(std::shared_ptr<Hittable> InHittable) : Hittable(CLASS_HTYPE, HittableDepthType::Unknown, RefractionIndex::Air) { Add(InHittable); }
     };
 };

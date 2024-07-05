@@ -20,9 +20,13 @@ constexpr DirectX::XMVECTOR YZ_VECTOR_MASK = { 0.f, 1.f, 1.f , 0.f };
 constexpr DirectX::XMVECTOR XYZ_VECTOR_MASK = { 1.f, 1.f, 1.f , 0.f };
 
 constexpr DirectX::XMVECTOR VECTOR_ZERO = { 0.f, 0.f, 0.f , 0.f };
+constexpr DirectX::XMFLOAT3 FLOAT3_ZERO = { 0.f, 0.f, 0.f };
 constexpr DirectX::XMVECTOR VECTOR_EPSILON = { FLT_EPSILON, FLT_EPSILON, FLT_EPSILON , FLT_EPSILON };
+constexpr DirectX::XMFLOAT3 FLOAT3_EPSILON = { FLT_EPSILON, FLT_EPSILON, FLT_EPSILON };
 constexpr DirectX::XMVECTOR VECTOR_SMALL = { 0.0001f, 0.0001f, 0.0001f , 0.0001f };
+constexpr DirectX::XMFLOAT3 FLOAT3_SMALL = { 0.0001f, 0.0001f, 0.0001f };
 constexpr DirectX::XMVECTOR VECTOR_ONE = { 1.f, 1.f, 1.f , 1.f };
+constexpr DirectX::XMFLOAT3 FLOAT3_ONE = { 1.f, 1.f, 1.f };
 
 //#define std::numeric_limits<float>::epsilon FLT_EPSILON
 namespace AppNmsp

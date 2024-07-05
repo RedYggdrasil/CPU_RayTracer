@@ -1,5 +1,6 @@
 #include "App/pch.h"
 
+#include "App/Assets/Materials/DielectricMat.h"
 #include "App/Assets/Materials/LambertianMat.h"
 #include "App/Assets/Materials/MetalMat.h"
 #include "App/Maths/Camera.h"
@@ -45,14 +46,14 @@ int main(int argc, char** argv)
 
 	std::shared_ptr<Material> materialGround	= std::make_shared<LambertianMat>	(XMFLOAT3{ 0.8f, 0.8f, 0.0f });
 	std::shared_ptr<Material> materialCenter	= std::make_shared<LambertianMat>	(XMFLOAT3{ 0.1f, 0.2f, 0.5f });
-	std::shared_ptr<Material> materialLeft		= std::make_shared<MetalMat>		(XMFLOAT3{ 0.8f, 0.8f, 0.8f }, 0.3f);
+	std::shared_ptr<Material> materialLeft		= std::make_shared<DielectricMat>	(RefractionIndex::Glass);
 	std::shared_ptr<Material> materialRight		= std::make_shared<MetalMat>		(XMFLOAT3{ 0.8f, 0.6f, 0.2f }, 1.0f);
 
 
-	world.Add(std::make_shared<HSphere>(XMFLOAT3{ 1.0f,  0.0f,  -100.5f }, 100.0f, materialGround	));
-	world.Add(std::make_shared<HSphere>(XMFLOAT3{ 1.2f,  0.0f,   000.0f }, 000.5f, materialCenter	));
-	world.Add(std::make_shared<HSphere>(XMFLOAT3{ 1.0f, -1.0f,   000.0f }, 000.5f, materialLeft		));
-	world.Add(std::make_shared<HSphere>(XMFLOAT3{ 1.0f,  1.0f,   000.0f }, 000.5f, materialRight	));
+	world.Add(std::make_shared<HSphere>(XMFLOAT3{ 1.0f,  0.0f,  -100.5f }, 100.0f, materialGround,	HittableDepthType::Container0, RefractionIndex::Air));
+	world.Add(std::make_shared<HSphere>(XMFLOAT3{ 1.2f,  0.0f,   000.0f }, 000.5f, materialCenter,	HittableDepthType::Container0, RefractionIndex::Air));
+	world.Add(std::make_shared<HSphere>(XMFLOAT3{ 1.0f, -1.0f,   000.0f }, 000.5f, materialLeft,	HittableDepthType::Container0, RefractionIndex::Air));
+	world.Add(std::make_shared<HSphere>(XMFLOAT3{ 1.0f,  1.0f,   000.0f }, 000.5f, materialRight,	HittableDepthType::Container0, RefractionIndex::Air));
 
 	std::chrono::steady_clock::time_point startTime = std::chrono::high_resolution_clock::now();
 	std::chrono::steady_clock::time_point endRenderTime;
