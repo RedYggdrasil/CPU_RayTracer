@@ -7,6 +7,9 @@
 #define USE_DOUBLE_PRECISION 0
 #endif
 
+
+#define USE_SCHLICK_REFLECTANCE 1
+
 #include <type_traits>
 #include <cmath>
 #include <limits>

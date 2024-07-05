@@ -5,9 +5,18 @@
 using namespace AppNmsp;
 using namespace DirectX;
 
+#if USE_SCHLICK_REFLECTANCE
+static float SchlickReflectance(const float InCosIncidentAngle, const float InRefractionIndex) {
+    // Use Schlick's approximation for reflectance.
+    float r0 = (1.f - InRefractionIndex) / (1.f + InRefractionIndex);
+    r0 = r0 * r0;
+    return r0 + (1.f - r0) * powf((1.f - InCosIncidentAngle), 5.f);
+}
+#endif
 
 bool DielectricMat::Scatter(const RayVECAnyNrm& InRayVec, const HitRecord& InRecord, XMFLOAT3& OutAttenuationColor, RayVECAnyNrm& OutRayScattered) const
 {
+
    OutAttenuationColor = FLOAT3_ONE;
    
    float refractionIndex = InRecord.bFrontFace ?
@@ -15,11 +24,28 @@ bool DielectricMat::Scatter(const RayVECAnyNrm& InRayVec, const HitRecord& InRec
        : m_refractionIndex / InRecord.OuterRefractionIndex;
 
    XMVECTOR NormalizedDirection = XMVector3Normalize(InRayVec.Direction);
-
    XMVECTOR SurfaceNormal = XMLoadFloat3(&InRecord.SurfaceNormal);
+
+   float cosTheta = fminf(XMVectorGetX(XMVector3Dot(-NormalizedDirection, SurfaceNormal)), 1.f);
+
+
+#if !USE_SCHLICK_REFLECTANCE
+   XMVECTOR lCosTheta = XMVECTOR{ cosTheta ,0.f ,0.f ,0.f };
+   XMVECTOR lRI = XMVECTOR{ refractionIndex ,0.f ,0.f ,0.f };
+#endif
+
    XMVECTOR refracted = XMVector3Refract(NormalizedDirection, SurfaceNormal, refractionIndex);
    XMVECTOR resultDirection;
-   if (RMath::XMVector3EpsilonZero(refracted))
+
+   static thread_local RRenderRandomizer::LocalRealDistribution<float> distrib = RRenderRandomizer::s_GetLocalDesyncDistribution<float>(0.f, 1.f);
+
+   if (RMath::XMVector3EpsilonZero(refracted) || 
+#if USE_SCHLICK_REFLECTANCE
+       SchlickReflectance(cosTheta, refractionIndex)
+#else
+       XMVectorGetX(XMFresnelTerm(lCosTheta, lRI))
+#endif
+> distrib())
    {
        resultDirection = XMVector3Reflect(NormalizedDirection, SurfaceNormal);
    }
