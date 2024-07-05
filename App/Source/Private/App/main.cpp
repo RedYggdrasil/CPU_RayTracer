@@ -46,7 +46,7 @@ int main(int argc, char** argv)
 
 	std::shared_ptr<Material> materialGround	= std::make_shared<LambertianMat>	(XMFLOAT3{ 0.8f, 0.8f, 0.0f });
 	std::shared_ptr<Material> materialCenter	= std::make_shared<LambertianMat>	(XMFLOAT3{ 0.1f, 0.2f, 0.5f });
-	std::shared_ptr<Material> materialLeft		= std::make_shared<DielectricMat>	(RefractionIndex::Glass);
+	std::shared_ptr<Material> materialLeft		= std::make_shared<DielectricMat>	(1.00f / 1.33f);
 	std::shared_ptr<Material> materialRight		= std::make_shared<MetalMat>		(XMFLOAT3{ 0.8f, 0.6f, 0.2f }, 1.0f);
 
 

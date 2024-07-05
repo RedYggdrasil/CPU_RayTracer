@@ -16,11 +16,22 @@ bool DielectricMat::Scatter(const RayVECAnyNrm& InRayVec, const HitRecord& InRec
 
    XMVECTOR NormalizedDirection = XMVector3Normalize(InRayVec.Direction);
 
-   XMVECTOR refracted = XMVector3Refract(NormalizedDirection, XMLoadFloat3(&InRecord.SurfaceNormal), refractionIndex);
+   XMVECTOR SurfaceNormal = XMLoadFloat3(&InRecord.SurfaceNormal);
+   XMVECTOR refracted = XMVector3Refract(NormalizedDirection, SurfaceNormal, refractionIndex);
+   XMVECTOR resultDirection;
+   if (RMath::XMVector3EpsilonZero(refracted))
+   {
+       resultDirection = XMVector3Reflect(NormalizedDirection, SurfaceNormal);
+   }
+   else
+   {
+       resultDirection = refracted;
+   }
+
    OutRayScattered = RayVECAnyNrm
    {
        .Origin = XMLoadFloat3(&InRecord.ImpactPoint),
-       .Direction = refracted
+       .Direction = resultDirection
    };
     return true;
 }
@@ -32,9 +43,19 @@ bool DielectricMat::scatter(const ray& InRayVec, const hit_record& InRecord, col
     double ri = InRecord.front_face ? (1.0 / m_refractionIndex) : m_refractionIndex;
 
     vec3 unit_direction = unit_vector(InRayVec.direction());
-    vec3 refracted = refract(unit_direction, InRecord.normal, ri);
 
-    OutRayScattered = ray(InRecord.p, refracted);
+    double cos_theta = fmin(dot(-unit_direction, InRecord.normal), 1.0);
+    double sin_theta = sqrt(1.0 - cos_theta * cos_theta);
+
+    bool cannot_refract = ri * sin_theta > 1.0;
+    vec3 direction;
+
+    if (cannot_refract)
+        direction = reflect(unit_direction, InRecord.normal);
+    else
+        direction = refract(unit_direction, InRecord.normal, ri);
+
+    OutRayScattered = ray(InRecord.p, direction);
     return true;
 
 }
