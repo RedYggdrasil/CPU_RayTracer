@@ -53,3 +53,14 @@ namespace AppNmsp
 		Scene() {};
 	};
 };
+
+#define SIMPLE_SCENE(SceneClassName)\
+namespace AppNmsp\
+{\
+	class SceneClassName : public Scene\
+	{\
+	public:\
+		R_VIRTUAL_IMPLICIT ~SceneClassName() R_OVERRIDE_IMPLICIT {};\
+		SceneClassName();\
+	};\
+};

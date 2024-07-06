@@ -139,6 +139,7 @@ void AppNmsp::XMLoadCamera(CameraVEC* InOutPDestination, const CameraFLT* InPSou
 	InOutPDestination->SamplesPerPixel = InPSource->SamplesPerPixel;
 	InOutPDestination->PixelSamplesScale = InPSource->PixelSamplesScale;
 	InOutPDestination->MaxDepth = InPSource->MaxDepth;
+	InOutPDestination->vFov = InPSource->vFov;
 }
 
 void AppNmsp::XMStoreCamera(CameraFLT* InOutPDestination, const CameraVEC* InPSource)
@@ -160,6 +161,7 @@ void AppNmsp::XMStoreCamera(CameraFLT* InOutPDestination, const CameraVEC* InPSo
 	InOutPDestination->SamplesPerPixel = InPSource->SamplesPerPixel;
 	InOutPDestination->PixelSamplesScale = InPSource->PixelSamplesScale;
 	InOutPDestination->MaxDepth	= InPSource->MaxDepth;
+	InOutPDestination->vFov = InPSource->vFov;
 }
 
 inline XMVECTOR XM_CALLCONV SampleSquare(FXMVECTOR InPixelDeltaU, FXMVECTOR InPixelDeltaV)
@@ -201,7 +203,12 @@ XMVECTOR XM_CALLCONV RayColor(const RayVECAnyNrm* InPlRay, const int32_t InDepth
 void AppNmsp::Camera::Initialize()
 {
 	m_cameraData.ImageSizeFromWidth(m_cameraData.ImageSize.x);
-	m_cameraData.ViewportSizeFromHeight(2.f);
+
+	float vpVerticalTheta = Deg2Rad(m_cameraData.vFov);
+	float halfHeight = tanf(vpVerticalTheta / 2.f);
+	float viewport_height = 2.f * halfHeight * m_cameraData.FocalLength;
+	m_cameraData.ViewportSizeFromHeight(viewport_height);
+
 	m_cameraData.PixelSamplesScale = 1.f / (float)m_cameraData.SamplesPerPixel;
 
 	// Calculate the vectors across the horizontal and down the vertical viewport edges.
@@ -234,7 +241,7 @@ void AppNmsp::Camera::Initialize()
 	m_bInitilized = true;
 }
 
-void AppNmsp::Camera::Render(const HList* InWorld, Picture* InTarget)
+void AppNmsp::Camera::Render(const HList* InWorld, Picture* InTarget) const
 {
 #if _DEBUG
 	if (!m_bInitilized)

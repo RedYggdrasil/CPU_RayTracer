@@ -6,7 +6,7 @@
 using namespace AppNmsp;
 using namespace DirectX;
 
-AppNmsp::GlassMetalDemoScene::GlassMetalDemoScene()
+GlassMetalDemoScene::GlassMetalDemoScene()
 :Scene()
 {
 	CameraFLT& cameraData = m_camera.GetData();

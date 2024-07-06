@@ -16,6 +16,7 @@
 #include "App/Hittables/HSphere.h"
 
 #include "App/Assets/Scenes/Scene.h"
+#include "App/Assets/Scenes/FOVScene.h"
 #include "App/Assets/Scenes/GlassMetalDemoScene.h"
 
 #include <iostream>
@@ -37,7 +38,7 @@ int main(int argc, char** argv)
 	renderRandomizer.Initialize();
 
 	//Choose a scene
-	Scene* currentScene = new GlassMetalDemoScene();
+	Scene* currentScene = new FOVScene();
 
 
 	Picture resultBuffer(currentScene->GetCamera().GetData().ImageSize, TEXT("Result.ppm"));

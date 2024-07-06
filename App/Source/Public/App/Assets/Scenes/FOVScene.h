@@ -1,4 +1,4 @@
 #pragma once
 #include "App/Assets/Scenes/Scene.h"
 
-SIMPLE_SCENE(GlassMetalDemoScene);
+SIMPLE_SCENE(FOVScene);
