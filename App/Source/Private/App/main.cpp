@@ -15,6 +15,9 @@
 #include "App/Hittables/HList.h"
 #include "App/Hittables/HSphere.h"
 
+#include "App/Assets/Scenes/Scene.h"
+#include "App/Assets/Scenes/GlassMetalDemoScene.h"
+
 #include <iostream>
 
 #include "Tracy.hpp"
@@ -28,55 +31,47 @@ using namespace DirectX;
 
 int main(int argc, char** argv) 
 {
+	//Initialize app
 	ZoneScopedN("Application");
-
 	RRenderRandomizer renderRandomizer = RRenderRandomizer();
 	renderRandomizer.Initialize();
 
-	Camera camera;
-	CameraFLT& cameraData = camera.GetData();
-	cameraData.AspectRatio = 16.f / 9.f;
-	cameraData.ImageSizeFromWidth(400);// (2160);
-	cameraData.SamplesPerPixel = 100;
-	cameraData.SamplesPerPixel = 100;
-
-	camera.Initialize();
-
-	HList world;
-
-	std::shared_ptr<Material> materialGround	= std::make_shared<LambertianMat>	(XMFLOAT3{ 0.8f, 0.8f, 0.0f });
-	std::shared_ptr<Material> materialCenter	= std::make_shared<LambertianMat>	(XMFLOAT3{ 0.1f, 0.2f, 0.5f });
-	std::shared_ptr<Material> materialLeft		= std::make_shared<DielectricMat>	(RefractionIndex::Glass);
-	std::shared_ptr<Material> materialBubble	= std::make_shared<DielectricMat>	(RefractionIndex::Air);
-	std::shared_ptr<Material> materialRight		= std::make_shared<MetalMat>		(XMFLOAT3{ 0.8f, 0.6f, 0.2f }, 1.0f);
+	//Choose a scene
+	Scene* currentScene = new GlassMetalDemoScene();
 
 
-	world.Add(std::make_shared<HSphere>(XMFLOAT3{ 1.0f,  0.0f,  -100.5f }, 100.0f, materialGround,	HittableDepthType::Container0, RefractionIndex::Air));
-	world.Add(std::make_shared<HSphere>(XMFLOAT3{ 1.2f,  0.0f,   000.0f }, 000.5f, materialCenter,	HittableDepthType::Container0, RefractionIndex::Air));
-	world.Add(std::make_shared<HSphere>(XMFLOAT3{ 1.0f, -1.0f,   000.0f }, 000.5f, materialLeft,	HittableDepthType::Container0, RefractionIndex::Air));
-	world.Add(std::make_shared<HSphere>(XMFLOAT3{ 1.0f, -1.0f,   000.0f }, 000.4f, materialBubble,	HittableDepthType::Container0, RefractionIndex::Glass));
-	world.Add(std::make_shared<HSphere>(XMFLOAT3{ 1.0f,  1.0f,   000.0f }, 000.5f, materialRight,	HittableDepthType::Container0, RefractionIndex::Air));
+	Picture resultBuffer(currentScene->GetCamera().GetData().ImageSize, TEXT("Result.ppm"));
 
+	//Start Chronos
 	std::chrono::steady_clock::time_point startTime = std::chrono::high_resolution_clock::now();
 	std::chrono::steady_clock::time_point endRenderTime;
 	std::chrono::steady_clock::time_point endWriteTime;
-	Picture resultBuffer(cameraData.ImageSize, TEXT("Result.ppm"));
+
+	
+	//Draw the scene
 	{
 		ZoneScopedN("Draw");
-		camera.Render(&world, &resultBuffer);
+		currentScene->Render(&resultBuffer);
 		endRenderTime = std::chrono::high_resolution_clock::now();
 	}
 
+	//Write to disk
 	{
 		ZoneScopedN("Write to disk");
 		resultBuffer.WriteToDisk(true);
 		endWriteTime = std::chrono::high_resolution_clock::now();
 	}
+
+	//Stop Chronos
 	auto durationRender = std::chrono::duration_cast<std::chrono::microseconds>(endRenderTime - startTime);
 	auto durationRenderAndWrite = std::chrono::duration_cast<std::chrono::microseconds>(endWriteTime - startTime);
+
+	//Clean heap
+	delete(currentScene);
+
+	//Output result and wait on exit command
 	std::cout << "\rRendering took : " << (double)durationRender.count() / 1000000.0 << " seconds (" 
 		<< (double)durationRenderAndWrite.count() / 1000000.0 <<" if accounting for write time)" << std::endl;
-
 	char r;
 	std::cin >> r;
 
