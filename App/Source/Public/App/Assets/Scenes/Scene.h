@@ -64,3 +64,14 @@ namespace AppNmsp\
 		SceneClassName();\
 	};\
 };
+
+#define SIMPLE_SCENE_WITH_PARENT(SceneClassName, ParentSceneClass)\
+namespace AppNmsp\
+{\
+	class SceneClassName : public ParentSceneClass\
+	{\
+	public:\
+		R_VIRTUAL_IMPLICIT ~SceneClassName() R_OVERRIDE_IMPLICIT {};\
+		SceneClassName();\
+	};\
+};

@@ -80,88 +80,112 @@ CameraFLT CameraFLT::FromSelectedCameraData(const float InAspectRation, const fl
 {
 	CameraFLT result;
 	result.AspectRatio = InAspectRation;
-	result.FocalLength = InFocalLength;
-	result.ImageSize.x = InImageWidth;
-	result.ViewportSize.y = InViewportHeigth;
-	result.CameraCenter = InCameraCenter;
+	result.m_focalLength = InFocalLength;
+	result.m_imageSize.x = InImageWidth;
+	result.m_viewportSize.y = InViewportHeigth;
+	result.m_cameraCenter = InCameraCenter;
 
-	result.ImageSize.y = int32_t((float)result.ImageSize.x / result.AspectRatio);
-	result.ViewportSize.x = result.ViewportSize.y * ((float)result.ImageSize.x / (float)result.ImageSize.y);
+	result.m_imageSize.y = int32_t((float)result.m_imageSize.x / result.AspectRatio);
+	result.m_viewportSize.x = result.m_viewportSize.y * ((float)result.m_imageSize.x / (float)result.m_imageSize.y);
 
 	// Calculate the vectors across the horizontal and down the vertical viewport edges.
-	result.ViewportU = XMFLOAT3(0.f, result.ViewportSize.x, 0.f);
-	result.ViewportV = XMFLOAT3(0.f, 0.f, -result.ViewportSize.y);
+	result.m_viewportU = XMFLOAT3(0.f, result.m_viewportSize.x, 0.f);
+	result.m_viewportV = XMFLOAT3(0.f, 0.f, -result.m_viewportSize.y);
 
 
-	XMVECTOR lCameraViewportSize = XMLoadFloat2(&result.ViewportSize);
+	XMVECTOR lCameraViewportSize = XMLoadFloat2(&result.m_viewportSize);
 
-	XMVECTOR lCameraCenter = XMLoadFloat3(&result.CameraCenter);
-	XMVECTOR lCameraViewportU = XMLoadFloat3(&result.ViewportU);
-	XMVECTOR lCameraViewportV = XMLoadFloat3(&result.ViewportV);
+	XMVECTOR lCameraCenter = XMLoadFloat3(&result.m_cameraCenter);
+	XMVECTOR lCameraViewportU = XMLoadFloat3(&result.m_viewportU);
+	XMVECTOR lCameraViewportV = XMLoadFloat3(&result.m_viewportV);
 
-	XMVECTOR lCameraImageSize{ (float)result.ImageSize.x, (float)result.ImageSize.y, 0.f, 0.f };
+	XMVECTOR lCameraImageSize{ (float)result.m_imageSize.x, (float)result.m_imageSize.y, 0.f, 0.f };
 
 
 	// Calculate the horizontal and vertical delta vectors from pixel to pixel.
-	XMVECTOR lCameraPixelDeltaU = XMVectorScale(lCameraViewportU, 1.f/(float)result.ImageSize.x);
-	XMVECTOR lCameraPixelDeltaV = XMVectorScale(lCameraViewportV, 1.f/(float)result.ImageSize.y);
-	XMStoreFloat3(&result.PixelDeltaU, lCameraPixelDeltaU);
-	XMStoreFloat3(&result.PixelDeltaV, lCameraPixelDeltaV);
+	XMVECTOR lCameraPixelDeltaU = XMVectorScale(lCameraViewportU, 1.f/(float)result.m_imageSize.x);
+	XMVECTOR lCameraPixelDeltaV = XMVectorScale(lCameraViewportV, 1.f/(float)result.m_imageSize.y);
+	XMStoreFloat3(&result.m_pixelDeltaU, lCameraPixelDeltaU);
+	XMStoreFloat3(&result.m_pixelDeltaV, lCameraPixelDeltaV);
 
-	XMVECTOR lFocalVector{ result.FocalLength, 0.f, 0.f, 0.f };
+	XMVECTOR lFocalVector{ result.m_focalLength, 0.f, 0.f, 0.f };
 
 	// Calculate the location of the upper left pixel.
 	XMVECTOR lViewportUpperLeftPos = lCameraCenter + lFocalVector - (lCameraViewportU / 2.f) - (lCameraViewportV / 2.f);
-	XMStoreFloat3(&result.ViewportUpperLeftPos, lViewportUpperLeftPos);
+	XMStoreFloat3(&result.m_viewportUpperLeftPos, lViewportUpperLeftPos);
 
 	XMVECTOR lPixel00Pos = lViewportUpperLeftPos + XMVectorScale((lCameraPixelDeltaU + lCameraPixelDeltaV), 0.5f);
-	XMStoreFloat3(&result.Pixel00Pos, lPixel00Pos);
+	XMStoreFloat3(&result.m_pixel00Pos, lPixel00Pos);
 
 	return result;
 }
 
 void AppNmsp::XMLoadCamera(CameraVEC* InOutPDestination, const CameraFLT* InPSource)
 {
-	InOutPDestination->CameraCenter			= DirectX::XMLoadFloat3(&InPSource->CameraCenter);
-	InOutPDestination->ViewportU			= DirectX::XMLoadFloat3(&InPSource->ViewportU);
-	InOutPDestination->ViewportV			= DirectX::XMLoadFloat3(&InPSource->ViewportV);
-	InOutPDestination->PixelDeltaU			= DirectX::XMLoadFloat3(&InPSource->PixelDeltaU);
-	InOutPDestination->PixelDeltaV			= DirectX::XMLoadFloat3(&InPSource->PixelDeltaV);
-	InOutPDestination->ViewportUpperLeftPos	= DirectX::XMLoadFloat3(&InPSource->ViewportUpperLeftPos);
-	InOutPDestination->Pixel00Pos			= DirectX::XMLoadFloat3(&InPSource->Pixel00Pos);
+	//12 Bytes privates
+	InOutPDestination->CameraCenter			= DirectX::XMLoadFloat3(&InPSource->m_cameraCenter);
+	InOutPDestination->ViewportU			= DirectX::XMLoadFloat3(&InPSource->m_viewportU);
+	InOutPDestination->ViewportV			= DirectX::XMLoadFloat3(&InPSource->m_viewportV);
+	InOutPDestination->PixelDeltaU			= DirectX::XMLoadFloat3(&InPSource->m_pixelDeltaU);
+	InOutPDestination->PixelDeltaV			= DirectX::XMLoadFloat3(&InPSource->m_pixelDeltaV);
+	InOutPDestination->ViewportUpperLeftPos	= DirectX::XMLoadFloat3(&InPSource->m_viewportUpperLeftPos);
+	InOutPDestination->Pixel00Pos			= DirectX::XMLoadFloat3(&InPSource->m_pixel00Pos);
+	InOutPDestination->CameraU				= DirectX::XMLoadFloat3(&InPSource->m_cameraU);
+	InOutPDestination->CameraV				= DirectX::XMLoadFloat3(&InPSource->m_cameraV);
+	InOutPDestination->CameraW				= DirectX::XMLoadFloat3(&InPSource->m_cameraW);
 
-	InOutPDestination->ViewportSize			= DirectX::XMLoadFloat2(&InPSource->ViewportSize);
+	//12 Bytes publics
+	InOutPDestination->PosLookFrom			= DirectX::XMLoadFloat3(&InPSource->PosLookFrom);
+	InOutPDestination->PosLookAt			= DirectX::XMLoadFloat3(&InPSource->PosLookAt);
+	InOutPDestination->UpVec				= DirectX::XMLoadFloat3(&InPSource->UpVec);
 
-	InOutPDestination->ImageSize			= DirectX::XMLoadSInt2(&InPSource->ImageSize);
+	//8 Bytes privates
+	InOutPDestination->ViewportSize			= DirectX::XMLoadFloat2(&InPSource->m_viewportSize);
+	InOutPDestination->ImageSize			= DirectX::XMLoadSInt2(&InPSource->m_imageSize);
 
-	InOutPDestination->AspectRatio = InPSource->AspectRatio;
-	InOutPDestination->FocalLength = InPSource->FocalLength;
-	InOutPDestination->SamplesPerPixel = InPSource->SamplesPerPixel;
-	InOutPDestination->PixelSamplesScale = InPSource->PixelSamplesScale;
-	InOutPDestination->MaxDepth = InPSource->MaxDepth;
-	InOutPDestination->vFov = InPSource->vFov;
+	//4 Bytes privates
+	InOutPDestination->PixelSamplesScale	= InPSource->m_pixelSamplesScale;
+	InOutPDestination->FocalLength			= InPSource->m_focalLength;
+
+	//4 Bytes publics
+	InOutPDestination->AspectRatio			= InPSource->AspectRatio;
+	InOutPDestination->SamplesPerPixel		= InPSource->SamplesPerPixel;
+	InOutPDestination->MaxDepth				= InPSource->MaxDepth;
+	InOutPDestination->vFov					= InPSource->vFov;
 }
 
 void AppNmsp::XMStoreCamera(CameraFLT* InOutPDestination, const CameraVEC* InPSource)
 {
-	DirectX::XMStoreFloat3(&InOutPDestination->CameraCenter			, InPSource->CameraCenter);
-	DirectX::XMStoreFloat3(&InOutPDestination->ViewportU			, InPSource->ViewportU);
-	DirectX::XMStoreFloat3(&InOutPDestination->ViewportV			, InPSource->ViewportV);
-	DirectX::XMStoreFloat3(&InOutPDestination->PixelDeltaU			, InPSource->PixelDeltaU);
-	DirectX::XMStoreFloat3(&InOutPDestination->PixelDeltaV			, InPSource->PixelDeltaV);
-	DirectX::XMStoreFloat3(&InOutPDestination->ViewportUpperLeftPos	, InPSource->ViewportUpperLeftPos);
-	DirectX::XMStoreFloat3(&InOutPDestination->Pixel00Pos			, InPSource->Pixel00Pos);
+	//12 Bytes privates
+	DirectX::XMStoreFloat3(&InOutPDestination->m_cameraCenter			, InPSource->CameraCenter);
+	DirectX::XMStoreFloat3(&InOutPDestination->m_viewportU				, InPSource->ViewportU);
+	DirectX::XMStoreFloat3(&InOutPDestination->m_viewportV				, InPSource->ViewportV);
+	DirectX::XMStoreFloat3(&InOutPDestination->m_pixelDeltaU			, InPSource->PixelDeltaU);
+	DirectX::XMStoreFloat3(&InOutPDestination->m_pixelDeltaV			, InPSource->PixelDeltaV);
+	DirectX::XMStoreFloat3(&InOutPDestination->m_viewportUpperLeftPos	, InPSource->ViewportUpperLeftPos);
+	DirectX::XMStoreFloat3(&InOutPDestination->m_pixel00Pos				, InPSource->Pixel00Pos);
+	DirectX::XMStoreFloat3(&InOutPDestination->m_cameraU				, InPSource->CameraU);
+	DirectX::XMStoreFloat3(&InOutPDestination->m_cameraV				, InPSource->CameraV);
+	DirectX::XMStoreFloat3(&InOutPDestination->m_cameraW				, InPSource->CameraW);
 
-	DirectX::XMStoreFloat2(&InOutPDestination->ViewportSize			, InPSource->ViewportSize);
+	//12 Bytes publics
+	DirectX::XMStoreFloat3(&InOutPDestination->PosLookFrom				, InPSource->PosLookFrom);
+	DirectX::XMStoreFloat3(&InOutPDestination->PosLookAt				, InPSource->PosLookAt);
+	DirectX::XMStoreFloat3(&InOutPDestination->UpVec					, InPSource->UpVec);
 
-	DirectX::XMStoreSInt2(&InOutPDestination->ImageSize				, InPSource->ImageSize);
+	//8 Bytes privates
+	DirectX::XMStoreFloat2(&InOutPDestination->m_viewportSize			, InPSource->ViewportSize);
+	DirectX::XMStoreSInt2(&InOutPDestination->m_imageSize				, InPSource->ImageSize);
 
-	InOutPDestination->AspectRatio = InPSource->AspectRatio;
-	InOutPDestination->FocalLength = InPSource->FocalLength;
-	InOutPDestination->SamplesPerPixel = InPSource->SamplesPerPixel;
-	InOutPDestination->PixelSamplesScale = InPSource->PixelSamplesScale;
-	InOutPDestination->MaxDepth	= InPSource->MaxDepth;
-	InOutPDestination->vFov = InPSource->vFov;
+	//4 Bytes privates
+	InOutPDestination->m_pixelSamplesScale								= InPSource->PixelSamplesScale;
+	InOutPDestination->m_focalLength									= InPSource->FocalLength;
+
+	//4 Bytes publics
+	InOutPDestination->AspectRatio										= InPSource->AspectRatio;
+	InOutPDestination->SamplesPerPixel									= InPSource->SamplesPerPixel;
+	InOutPDestination->MaxDepth											= InPSource->MaxDepth;
+	InOutPDestination->vFov												= InPSource->vFov;
 }
 
 inline XMVECTOR XM_CALLCONV SampleSquare(FXMVECTOR InPixelDeltaU, FXMVECTOR InPixelDeltaV)
@@ -202,41 +226,59 @@ XMVECTOR XM_CALLCONV RayColor(const RayVECAnyNrm* InPlRay, const int32_t InDepth
 
 void AppNmsp::Camera::Initialize()
 {
-	m_cameraData.ImageSizeFromWidth(m_cameraData.ImageSize.x);
+	m_cameraData.ImageSizeFromWidth(m_cameraData.m_imageSize.x);
+	m_cameraData.m_pixelSamplesScale = 1.f / (float)m_cameraData.SamplesPerPixel;
+
+	m_cameraData.m_cameraCenter = m_cameraData.PosLookFrom;
+
+
+	XMVECTOR lCameraLookFrom = XMLoadFloat3(&m_cameraData.PosLookFrom);
+	XMVECTOR lCameraLookAt = XMLoadFloat3(&m_cameraData.PosLookAt);
+	XMVECTOR lCameraUpVec = XMLoadFloat3(&m_cameraData.UpVec);
+
+	XMVECTOR lFocalVector = (lCameraLookAt - lCameraLookFrom);
+	m_cameraData.m_focalLength = XMVectorGetX(XMVector3Length(lFocalVector));
 
 	float vpVerticalTheta = Deg2Rad(m_cameraData.vFov);
 	float halfHeight = tanf(vpVerticalTheta / 2.f);
-	float viewport_height = 2.f * halfHeight * m_cameraData.FocalLength;
+	float viewport_height = 2.f * halfHeight * m_cameraData.m_focalLength;
 	m_cameraData.ViewportSizeFromHeight(viewport_height);
 
-	m_cameraData.PixelSamplesScale = 1.f / (float)m_cameraData.SamplesPerPixel;
+	//Forward Vector					//using focal Vec
+	XMVECTOR lCameraVecW = XMVector3Normalize(lFocalVector);
+	//Right Vector						//as cross of given Up direction and foward vector
+	XMVECTOR lCameraVecU = XMVector3Cross(lCameraUpVec, lCameraVecW);
+	//Up Vector							//from computed forward and right vector
+	XMVECTOR lCameraVecV = XMVector3Cross(lCameraVecW, lCameraVecU);
 
-	// Calculate the vectors across the horizontal and down the vertical viewport edges.
-	m_cameraData.ViewportU = XMFLOAT3(0.f, m_cameraData.ViewportSize.x, 0.f);
-	m_cameraData.ViewportV = XMFLOAT3(0.f, 0.f, -m_cameraData.ViewportSize.y);
+	XMStoreFloat3(&m_cameraData.m_cameraU, lCameraVecU);
+	XMStoreFloat3(&m_cameraData.m_cameraV, lCameraVecV);
+	XMStoreFloat3(&m_cameraData.m_cameraW, lCameraVecW);
 
 
+	XMVECTOR lCameraViewportU =  lCameraVecU * m_cameraData.m_viewportSize.x;
+	XMVECTOR lCameraViewportV = -lCameraVecV * m_cameraData.m_viewportSize.y;
+	XMStoreFloat3(&m_cameraData.m_viewportU, lCameraViewportU);
+	XMStoreFloat3(&m_cameraData.m_viewportV, lCameraViewportV);
 
-	XMVECTOR lCameraCenter = XMLoadFloat3(&m_cameraData.CameraCenter);
-	XMVECTOR lCameraViewportU = XMLoadFloat3(&m_cameraData.ViewportU);
-	XMVECTOR lCameraViewportV = XMLoadFloat3(&m_cameraData.ViewportV);
+
+	XMVECTOR lCameraCenter = XMLoadFloat3(&m_cameraData.m_cameraCenter);
 
 
 	// Calculate the horizontal and vertical delta vectors from pixel to pixel.
-	XMVECTOR lCameraPixelDeltaU = XMVectorScale(lCameraViewportU, 1.f / (float)m_cameraData.ImageSize.x);
-	XMVECTOR lCameraPixelDeltaV = XMVectorScale(lCameraViewportV, 1.f / (float)m_cameraData.ImageSize.y);
+	XMVECTOR lCameraPixelDeltaU = XMVectorScale(lCameraViewportU, 1.f / (float)m_cameraData.m_imageSize.x);
+	XMVECTOR lCameraPixelDeltaV = XMVectorScale(lCameraViewportV, 1.f / (float)m_cameraData.m_imageSize.y);
 
-	XMStoreFloat3(&m_cameraData.PixelDeltaU, lCameraPixelDeltaU);
-	XMStoreFloat3(&m_cameraData.PixelDeltaV, lCameraPixelDeltaV);
+	XMStoreFloat3(&m_cameraData.m_pixelDeltaU, lCameraPixelDeltaU);
+	XMStoreFloat3(&m_cameraData.m_pixelDeltaV, lCameraPixelDeltaV);
 
-	XMVECTOR lFocalVector{ m_cameraData.FocalLength, 0.f, 0.f, 0.f };
 
 	// Calculate the location of the upper left pixel.
 	XMVECTOR lViewportUpperLeftPos = lCameraCenter + lFocalVector - (lCameraViewportU / 2.f) - (lCameraViewportV / 2.f);
-	XMStoreFloat3(&m_cameraData.ViewportUpperLeftPos, lViewportUpperLeftPos);
+	XMStoreFloat3(&m_cameraData.m_viewportUpperLeftPos, lViewportUpperLeftPos);
 
 	XMVECTOR lPixel00Pos = lViewportUpperLeftPos + XMVectorScale((lCameraPixelDeltaU + lCameraPixelDeltaV), 0.5f);
-	XMStoreFloat3(&m_cameraData.Pixel00Pos, lPixel00Pos);
+	XMStoreFloat3(&m_cameraData.m_pixel00Pos, lPixel00Pos);
 
 	m_bInitilized = true;
 }
@@ -257,10 +299,10 @@ void AppNmsp::Camera::Render(const HList* InWorld, Picture* InTarget) const
 	XMFLOAT2 sizef = XMFLOAT2((float)size.x, (float)size.y);
 
 
-	XMVECTOR lPixel00Pos = XMLoadFloat3(&m_cameraData.Pixel00Pos);
-	XMVECTOR lPixelDeltaU = XMLoadFloat3(&m_cameraData.PixelDeltaU);
-	XMVECTOR lPixelDeltaV = XMLoadFloat3(&m_cameraData.PixelDeltaV);
-	XMVECTOR lCameraCenter = XMLoadFloat3(&m_cameraData.CameraCenter);
+	XMVECTOR lPixel00Pos = XMLoadFloat3(&m_cameraData.m_pixel00Pos);
+	XMVECTOR lPixelDeltaU = XMLoadFloat3(&m_cameraData.m_pixelDeltaU);
+	XMVECTOR lPixelDeltaV = XMLoadFloat3(&m_cameraData.m_pixelDeltaV);
+	XMVECTOR lCameraCenter = XMLoadFloat3(&m_cameraData.m_cameraCenter);
 	for (int32_t y = 0; y < size.y; ++y)
 	{
 		static int32_t lastLogs = y / 10;
@@ -300,7 +342,7 @@ void AppNmsp::Camera::Render(const HList* InWorld, Picture* InTarget) const
 			resultColor = XMLoadFloat3(&resFLT3);
 			InTarget->m_pixelDBLs[InTarget->mPixelDBLIDX(x, y)] = pictureColor{ pixel_color.e[0], pixel_color.e[1], pixel_color.e[2] };
 #else			
-			XMStoreFloat3(&InTarget->operator[]({ x, y }), XMVectorScale(resultColor, m_cameraData.PixelSamplesScale));
+			XMStoreFloat3(&InTarget->operator[]({ x, y }), XMVectorScale(resultColor, m_cameraData.m_pixelSamplesScale));
 
 #endif
 		}

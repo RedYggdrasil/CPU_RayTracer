@@ -17,7 +17,7 @@
 
 #include "App/Assets/Scenes/Scene.h"
 #include "App/Assets/Scenes/FOVScene.h"
-#include "App/Assets/Scenes/GlassMetalDemoScene.h"
+#include "App/Assets/Scenes/GlassMetalDemoSceneLookAt.h"
 
 #include <iostream>
 
@@ -38,10 +38,10 @@ int main(int argc, char** argv)
 	renderRandomizer.Initialize();
 
 	//Choose a scene
-	Scene* currentScene = new FOVScene();
+	Scene* currentScene = new GlassMetalDemoSceneLookAt();
 
 
-	Picture resultBuffer(currentScene->GetCamera().GetData().ImageSize, TEXT("Result.ppm"));
+	Picture resultBuffer(currentScene->GetCamera().GetData().GetImageSize(), TEXT("Result.ppm"));
 
 	//Start Chronos
 	std::chrono::steady_clock::time_point startTime = std::chrono::high_resolution_clock::now();
