@@ -16,6 +16,8 @@ namespace AppNmsp
 		DirectX::XMVECTOR CameraU; //Camera Right Vector (y)
 		DirectX::XMVECTOR CameraV; //Camera Up Vector (z)
 		DirectX::XMVECTOR CameraW; //Camera Forward Vector (x)
+		DirectX::XMVECTOR DefocusDiskU; //Defocus disk Right Vector (y)
+		DirectX::XMVECTOR DefocusDiskV; //Defocus disk Up Vector (z)
 
 		DirectX::XMVECTOR PosLookFrom;
 		DirectX::XMVECTOR PosLookAt;
@@ -25,12 +27,13 @@ namespace AppNmsp
 		DirectX::XMVECTOR ImageSize;
 
 		float PixelSamplesScale;
-		float FocalLength;
 
 		float AspectRatio;
 		int32_t SamplesPerPixel;
 		int32_t MaxDepth;
 		float vFov;
+		float DefocusAngle;
+		float FocusDistance;
 	};
 	struct CameraFLT
 	{
@@ -46,6 +49,8 @@ namespace AppNmsp
 		DirectX::XMFLOAT3	m_cameraU; //Camera Right Vector (y)
 		DirectX::XMFLOAT3	m_cameraV; //Camera Up Vector (z)
 		DirectX::XMFLOAT3	m_cameraW; //Camera Forward Vector (x)
+		DirectX::XMFLOAT3	m_defocusDiskU; //Defocus disk Right Vector (y)
+		DirectX::XMFLOAT3	m_defocusDiskV; //Defocus disk Up Vector (z)
 	public:
 		DirectX::XMFLOAT3	PosLookFrom		= DirectX::XMFLOAT3	{ 0.f, 0.f, 0.f };
 		DirectX::XMFLOAT3	PosLookAt		= DirectX::XMFLOAT3	{ 1.f, 0.f, 0.f };
@@ -59,27 +64,20 @@ namespace AppNmsp
 		//4 Bytes vars
 	private:
 		float				m_pixelSamplesScale;
-		float				m_focalLength = 1.f;
 	public:
-		float				AspectRatio = 1.f;
+		float				AspectRatio		= 1.f;
 		int32_t				SamplesPerPixel = 10;
-		int32_t				MaxDepth = 10;
-		float				vFov = 90.f;
+		int32_t				MaxDepth		= 10;
+		float				vFov			= 90.f;
+		float				DefocusAngle	= 90.f; // Variation angle of rays through each pixel
+		float				FocusDistance	= 10.f; // Distance from camera lookfrom point to plane of perfect focus
 	public:
 		inline static DirectX::XMINT2 ImageSizeFromWidthAndAspectRatio(const int32_t InWidth, const float InAspectRatio) { return DirectX::XMINT2{ InWidth, int32_t((float)InWidth / InAspectRatio) }; }
 		inline void ImageSizeFromWidth(const int32_t InWidth) { this->m_imageSize = ImageSizeFromWidthAndAspectRatio(InWidth, this->AspectRatio); }
 		
 		inline static DirectX::XMFLOAT2 ViewportSizeFromHeightAndImageSize(const float InHeight, const DirectX::XMINT2 InImageSize) { return DirectX::XMFLOAT2{ InHeight * ((float)InImageSize.x / (float)InImageSize.y), InHeight }; }
 		inline void ViewportSizeFromHeight(const float InHeight) { this->m_viewportSize = ViewportSizeFromHeightAndImageSize(InHeight, this->m_imageSize); }
-	public:
-		static CameraFLT FromSelectedCameraData
-		(
-			const float InAspectRation, 
-			const float InFocalLength, 
-			const DirectX::XMFLOAT3& InCameraCenter,
-			const int32_t InImageWidth,
-			const float InViewportHeigth
-		);
+
 	public:
 		DirectX::XMINT2 GetImageSize() const { return m_imageSize; }
 

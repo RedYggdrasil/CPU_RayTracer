@@ -18,8 +18,15 @@ using namespace DirectX;
 
 
 #if WITH_REFERENCE
+
+point3 defocus_disk_sample() const {
+	// Returns a random point in the camera defocus disk.
+	auto p = random_in_unit_disk();
+	return center + (p[0] * defocus_disk_u) + (p[1] * defocus_disk_v);
+}
+
 ray get_ray(const Camera& InCamera, int i, int j) {
-	// Construct a camera ray originating from the origin and directed at randomly sampled
+	// Construct a camera ray originating from the defocus disk and directed at randomly sampled
 	// point around the pixel location i, j.
 
 	vec3 offset = sample_square();
@@ -27,7 +34,7 @@ ray get_ray(const Camera& InCamera, int i, int j) {
 		+ ((i + offset.x()) * InCamera.GetData().PixelDeltaU)
 		+ ((j + offset.y()) * InCamera.GetData().PixelDeltaV);
 
-	vec3 ray_origin = vec3(InCamera.GetData().CameraCenter);
+	vec3 ray_origin = (defocus_angle <= 0) ? center : defocus_disk_sample();
 	vec3 ray_direction = pixel_sample - ray_origin;
 
 	return ray(ray_origin, ray_direction);
@@ -76,49 +83,6 @@ color ray_colorFLTPrecision(const ray& r, const int32_t InDepth, const HList* wo
 }
 #endif WITH_REFERENCE
 
-CameraFLT CameraFLT::FromSelectedCameraData(const float InAspectRation, const float InFocalLength, const XMFLOAT3& InCameraCenter, const int32_t InImageWidth, const float InViewportHeigth)
-{
-	CameraFLT result;
-	result.AspectRatio = InAspectRation;
-	result.m_focalLength = InFocalLength;
-	result.m_imageSize.x = InImageWidth;
-	result.m_viewportSize.y = InViewportHeigth;
-	result.m_cameraCenter = InCameraCenter;
-
-	result.m_imageSize.y = int32_t((float)result.m_imageSize.x / result.AspectRatio);
-	result.m_viewportSize.x = result.m_viewportSize.y * ((float)result.m_imageSize.x / (float)result.m_imageSize.y);
-
-	// Calculate the vectors across the horizontal and down the vertical viewport edges.
-	result.m_viewportU = XMFLOAT3(0.f, result.m_viewportSize.x, 0.f);
-	result.m_viewportV = XMFLOAT3(0.f, 0.f, -result.m_viewportSize.y);
-
-
-	XMVECTOR lCameraViewportSize = XMLoadFloat2(&result.m_viewportSize);
-
-	XMVECTOR lCameraCenter = XMLoadFloat3(&result.m_cameraCenter);
-	XMVECTOR lCameraViewportU = XMLoadFloat3(&result.m_viewportU);
-	XMVECTOR lCameraViewportV = XMLoadFloat3(&result.m_viewportV);
-
-	XMVECTOR lCameraImageSize{ (float)result.m_imageSize.x, (float)result.m_imageSize.y, 0.f, 0.f };
-
-
-	// Calculate the horizontal and vertical delta vectors from pixel to pixel.
-	XMVECTOR lCameraPixelDeltaU = XMVectorScale(lCameraViewportU, 1.f/(float)result.m_imageSize.x);
-	XMVECTOR lCameraPixelDeltaV = XMVectorScale(lCameraViewportV, 1.f/(float)result.m_imageSize.y);
-	XMStoreFloat3(&result.m_pixelDeltaU, lCameraPixelDeltaU);
-	XMStoreFloat3(&result.m_pixelDeltaV, lCameraPixelDeltaV);
-
-	XMVECTOR lFocalVector{ result.m_focalLength, 0.f, 0.f, 0.f };
-
-	// Calculate the location of the upper left pixel.
-	XMVECTOR lViewportUpperLeftPos = lCameraCenter + lFocalVector - (lCameraViewportU / 2.f) - (lCameraViewportV / 2.f);
-	XMStoreFloat3(&result.m_viewportUpperLeftPos, lViewportUpperLeftPos);
-
-	XMVECTOR lPixel00Pos = lViewportUpperLeftPos + XMVectorScale((lCameraPixelDeltaU + lCameraPixelDeltaV), 0.5f);
-	XMStoreFloat3(&result.m_pixel00Pos, lPixel00Pos);
-
-	return result;
-}
 
 void AppNmsp::XMLoadCamera(CameraVEC* InOutPDestination, const CameraFLT* InPSource)
 {
@@ -133,6 +97,8 @@ void AppNmsp::XMLoadCamera(CameraVEC* InOutPDestination, const CameraFLT* InPSou
 	InOutPDestination->CameraU				= DirectX::XMLoadFloat3(&InPSource->m_cameraU);
 	InOutPDestination->CameraV				= DirectX::XMLoadFloat3(&InPSource->m_cameraV);
 	InOutPDestination->CameraW				= DirectX::XMLoadFloat3(&InPSource->m_cameraW);
+	InOutPDestination->DefocusDiskU			= DirectX::XMLoadFloat3(&InPSource->m_defocusDiskU);
+	InOutPDestination->DefocusDiskV			= DirectX::XMLoadFloat3(&InPSource->m_defocusDiskV);
 
 	//12 Bytes publics
 	InOutPDestination->PosLookFrom			= DirectX::XMLoadFloat3(&InPSource->PosLookFrom);
@@ -145,13 +111,14 @@ void AppNmsp::XMLoadCamera(CameraVEC* InOutPDestination, const CameraFLT* InPSou
 
 	//4 Bytes privates
 	InOutPDestination->PixelSamplesScale	= InPSource->m_pixelSamplesScale;
-	InOutPDestination->FocalLength			= InPSource->m_focalLength;
 
 	//4 Bytes publics
 	InOutPDestination->AspectRatio			= InPSource->AspectRatio;
 	InOutPDestination->SamplesPerPixel		= InPSource->SamplesPerPixel;
 	InOutPDestination->MaxDepth				= InPSource->MaxDepth;
 	InOutPDestination->vFov					= InPSource->vFov;
+	InOutPDestination->DefocusAngle			= InPSource->DefocusAngle;
+	InOutPDestination->FocusDistance		= InPSource->FocusDistance;
 }
 
 void AppNmsp::XMStoreCamera(CameraFLT* InOutPDestination, const CameraVEC* InPSource)
@@ -167,6 +134,8 @@ void AppNmsp::XMStoreCamera(CameraFLT* InOutPDestination, const CameraVEC* InPSo
 	DirectX::XMStoreFloat3(&InOutPDestination->m_cameraU				, InPSource->CameraU);
 	DirectX::XMStoreFloat3(&InOutPDestination->m_cameraV				, InPSource->CameraV);
 	DirectX::XMStoreFloat3(&InOutPDestination->m_cameraW				, InPSource->CameraW);
+	DirectX::XMStoreFloat3(&InOutPDestination->m_defocusDiskU			, InPSource->DefocusDiskU);
+	DirectX::XMStoreFloat3(&InOutPDestination->m_defocusDiskV			, InPSource->DefocusDiskV);
 
 	//12 Bytes publics
 	DirectX::XMStoreFloat3(&InOutPDestination->PosLookFrom				, InPSource->PosLookFrom);
@@ -179,19 +148,28 @@ void AppNmsp::XMStoreCamera(CameraFLT* InOutPDestination, const CameraVEC* InPSo
 
 	//4 Bytes privates
 	InOutPDestination->m_pixelSamplesScale								= InPSource->PixelSamplesScale;
-	InOutPDestination->m_focalLength									= InPSource->FocalLength;
 
 	//4 Bytes publics
 	InOutPDestination->AspectRatio										= InPSource->AspectRatio;
 	InOutPDestination->SamplesPerPixel									= InPSource->SamplesPerPixel;
 	InOutPDestination->MaxDepth											= InPSource->MaxDepth;
 	InOutPDestination->vFov												= InPSource->vFov;
+	InOutPDestination->DefocusAngle										= InPSource->DefocusAngle;
+	InOutPDestination->FocusDistance									= InPSource->FocusDistance;
 }
 
 inline XMVECTOR XM_CALLCONV SampleSquare(FXMVECTOR InPixelDeltaU, FXMVECTOR InPixelDeltaV)
 {
 	static thread_local RRenderRandomizer::LocalRealDistribution<float> localDistrib = RRenderRandomizer::s_GetLocalDesyncDistribution<float>(-0.5f, 0.5f);
 	return (XMVectorScale(InPixelDeltaU, localDistrib()) + (XMVectorScale(InPixelDeltaV, localDistrib())));
+}
+
+inline XMVECTOR XM_CALLCONV DefocusDiskSample(FXMVECTOR InLoadedOrigin, FXMVECTOR InDefocusDiskU, FXMVECTOR InDefocusDiskV)
+{
+	static thread_local LocalVectorDistributionUnitSphereDistribution unitSphereDsitrib;
+	XMVECTOR DefocusAmount = unitSphereDsitrib.RandomInUnitDisk();
+
+	return InLoadedOrigin + (XMVectorGetX(DefocusAmount) * InDefocusDiskU) + (XMVectorGetY(DefocusAmount) * InDefocusDiskV);
 }
 
 XMVECTOR XM_CALLCONV RayColor(const RayVECAnyNrm* InPlRay, const int32_t InDepth, const HList* InWorld)
@@ -236,16 +214,14 @@ void AppNmsp::Camera::Initialize()
 	XMVECTOR lCameraLookAt = XMLoadFloat3(&m_cameraData.PosLookAt);
 	XMVECTOR lCameraUpVec = XMLoadFloat3(&m_cameraData.UpVec);
 
-	XMVECTOR lFocalVector = (lCameraLookAt - lCameraLookFrom);
-	m_cameraData.m_focalLength = XMVectorGetX(XMVector3Length(lFocalVector));
 
 	float vpVerticalTheta = Deg2Rad(m_cameraData.vFov);
 	float halfHeight = tanf(vpVerticalTheta / 2.f);
-	float viewport_height = 2.f * halfHeight * m_cameraData.m_focalLength;
+	float viewport_height = 2.f * halfHeight * m_cameraData.FocusDistance;
 	m_cameraData.ViewportSizeFromHeight(viewport_height);
 
 	//Forward Vector					//using focal Vec
-	XMVECTOR lCameraVecW = XMVector3Normalize(lFocalVector);
+	XMVECTOR lCameraVecW = XMVector3Normalize(lCameraLookAt - lCameraLookFrom);
 	//Right Vector						//as cross of given Up direction and foward vector
 	XMVECTOR lCameraVecU = XMVector3Cross(lCameraUpVec, lCameraVecW);
 	//Up Vector							//from computed forward and right vector
@@ -274,11 +250,16 @@ void AppNmsp::Camera::Initialize()
 
 
 	// Calculate the location of the upper left pixel.
-	XMVECTOR lViewportUpperLeftPos = lCameraCenter + lFocalVector - (lCameraViewportU / 2.f) - (lCameraViewportV / 2.f);
+	XMVECTOR lViewportUpperLeftPos = lCameraCenter + (lCameraVecW * m_cameraData.FocusDistance) - (lCameraViewportU / 2.f) - (lCameraViewportV / 2.f);
 	XMStoreFloat3(&m_cameraData.m_viewportUpperLeftPos, lViewportUpperLeftPos);
 
 	XMVECTOR lPixel00Pos = lViewportUpperLeftPos + XMVectorScale((lCameraPixelDeltaU + lCameraPixelDeltaV), 0.5f);
 	XMStoreFloat3(&m_cameraData.m_pixel00Pos, lPixel00Pos);
+
+	float defocusRadius = m_cameraData.FocusDistance * tanf(Deg2Rad(m_cameraData.DefocusAngle * 0.5f));
+
+	XMStoreFloat3(&m_cameraData.m_defocusDiskU, lCameraVecU * defocusRadius);
+	XMStoreFloat3(&m_cameraData.m_defocusDiskV, lCameraVecV * defocusRadius);
 
 	m_bInitilized = true;
 }
@@ -292,8 +273,7 @@ void AppNmsp::Camera::Render(const HList* InWorld, Picture* InTarget) const
 		return;
 	}
 #endif // _DEBUG
-
-
+	static thread_local LocalVectorDistributionUnitSphereDistribution unitSphereDsitrib;
 
 	XMINT2 size = InTarget->GetSize();
 	XMFLOAT2 sizef = XMFLOAT2((float)size.x, (float)size.y);
@@ -303,6 +283,11 @@ void AppNmsp::Camera::Render(const HList* InWorld, Picture* InTarget) const
 	XMVECTOR lPixelDeltaU = XMLoadFloat3(&m_cameraData.m_pixelDeltaU);
 	XMVECTOR lPixelDeltaV = XMLoadFloat3(&m_cameraData.m_pixelDeltaV);
 	XMVECTOR lCameraCenter = XMLoadFloat3(&m_cameraData.m_cameraCenter);
+
+	XMVECTOR lDefocusDiskU = XMLoadFloat3(&m_cameraData.m_defocusDiskU);
+	XMVECTOR lDefocusDiskV = XMLoadFloat3(&m_cameraData.m_defocusDiskV);
+
+	bool bDefocusRays = m_cameraData.DefocusAngle > FLT_EPSILON;
 	for (int32_t y = 0; y < size.y; ++y)
 	{
 		static int32_t lastLogs = y / 10;
@@ -323,10 +308,16 @@ void AppNmsp::Camera::Render(const HList* InWorld, Picture* InTarget) const
 			XMVECTOR resultColor = { 0.f, 0.f, 0.f, 0.f };
 			for (int32_t sample = 0; sample < m_cameraData.SamplesPerPixel; sample++) 
 			{
-				XMVECTOR lRayDir = /*PixelSample*/(lPixelCenter + SampleSquare(lPixelDeltaU, lPixelDeltaV)) - /*RayOrigin*/lCameraCenter;
+
+				XMVECTOR DefocusAmount = unitSphereDsitrib.RandomInUnitDisk();
+				XMVECTOR defocusedRayOrigin = bDefocusRays ?
+					lCameraCenter + (XMVectorGetX(DefocusAmount) * lDefocusDiskU) + (XMVectorGetY(DefocusAmount) * lDefocusDiskV)//DefocusDiskSample(lCameraCenter, lDefocusDiskU, lDefocusDiskV) // function hand-inlined for perforance reason
+					:
+					lCameraCenter;
+				XMVECTOR lRayDir = /*PixelSample*/(lPixelCenter + SampleSquare(lPixelDeltaU, lPixelDeltaV)) - /*RayOrigin*/defocusedRayOrigin;
 				RayVECLength lRay
 				{
-					.Origin = lCameraCenter,
+					.Origin = defocusedRayOrigin,
 					.Direction = lRayDir
 				};
 #if USE_DOUBLE_PRECISION

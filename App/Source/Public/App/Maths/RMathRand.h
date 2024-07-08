@@ -11,6 +11,15 @@ namespace AppNmsp
 	{
 	public:
 		RRenderRandomizer::LocalRealDistribution<float> RealDistribution;
+
+		inline DirectX::XMFLOAT2 GetFLT2()
+		{
+			return DirectX::XMFLOAT2
+			{
+				RealDistribution(),
+				RealDistribution()
+			};
+		};
 		inline DirectX::XMFLOAT3 GetFLT3()
 		{
 			return DirectX::XMFLOAT3
@@ -20,6 +29,16 @@ namespace AppNmsp
 				RealDistribution()
 			};
 		};
+
+		inline DirectX::XMFLOAT2 GetFLT2Scaled(const float InMin, const float InMax)
+		{
+			float diff = InMax - InMin;
+			return DirectX::XMFLOAT2
+			{
+				InMin + RealDistribution() * diff,
+				InMin + RealDistribution() * diff
+			};
+		}
 
 		inline DirectX::XMFLOAT3 GetFLT3Scaled(const float InMin, const float InMax)
 		{
@@ -32,6 +51,17 @@ namespace AppNmsp
 			};
 		}
 
+		inline DirectX::XMVECTOR XM_CALLCONV GetVEC2()
+		{
+			return DirectX::XMVECTOR
+			{
+				RealDistribution(),
+				RealDistribution(),
+				0.f,
+				0.f
+			};
+		};
+
 		inline DirectX::XMVECTOR XM_CALLCONV GetVEC3()
 		{
 			return DirectX::XMVECTOR
@@ -40,6 +70,17 @@ namespace AppNmsp
 				RealDistribution(),
 				RealDistribution(),
 				0.f
+			};
+		};
+
+		inline DirectX::XMVECTOR XM_CALLCONV GetVEC2Point()
+		{
+			return DirectX::XMVECTOR
+			{
+				RealDistribution(),
+				RealDistribution(),
+				0.f,
+				1.f
 			};
 		};
 		inline DirectX::XMVECTOR XM_CALLCONV GetVEC3Point()
@@ -53,6 +94,17 @@ namespace AppNmsp
 			};
 		};
 
+		inline DirectX::XMVECTOR XM_CALLCONV GetVEC2(const float InMin, const float InMax)
+		{
+			float diff = InMax - InMin;
+			return DirectX::XMVECTOR
+			{
+				InMin + RealDistribution() * diff,
+				InMin + RealDistribution() * diff,
+				0.f,
+				0.f
+			};
+		};
 		inline DirectX::XMVECTOR XM_CALLCONV GetVEC3(const float InMin, const float InMax)
 		{
 			float diff = InMax - InMin;
@@ -62,6 +114,17 @@ namespace AppNmsp
 				InMin + RealDistribution() * diff,
 				InMin + RealDistribution() * diff,
 				0.f
+			};
+		};
+		inline DirectX::XMVECTOR XM_CALLCONV GetVEC2Point(const float InMin, const float InMax)
+		{
+			float diff = InMax - InMin;
+			return DirectX::XMVECTOR
+			{
+				InMin + RealDistribution() * diff,
+				InMin + RealDistribution() * diff,
+				0.f,
+				1.f
 			};
 		};
 		inline DirectX::XMVECTOR XM_CALLCONV GetVEC3Point(const float InMin, const float InMax)
@@ -92,6 +155,19 @@ namespace AppNmsp
 	struct LocalVectorDistributionUnitSphereDistribution : public LocalVectorDistribution
 	{
 	public:
+		/// <summary>
+		/// Need a -1 to 1 distribution, use CreateDesyncUnitSphereDistribution to create the distribution
+		/// </summary>
+		/// <returns></returns>
+		inline DirectX::XMVECTOR XM_CALLCONV RandomInUnitDisk() {
+			DirectX::XMVECTOR result;
+			while (true) {
+				result = this->GetVEC2();
+				if (DirectX::XMVectorGetX(DirectX::XMVector2LengthSq(result)) < 1.f)
+					return result;
+			}
+		}
+
 		/// <summary>
 		/// Need a -1 to 1 distribution, use CreateDesyncUnitSphereDistribution to create the distribution
 		/// </summary>
