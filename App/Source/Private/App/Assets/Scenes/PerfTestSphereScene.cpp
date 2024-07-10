@@ -51,7 +51,13 @@ PerfTestSphereScene::PerfTestSphereScene()
 
     auto GetFloat = [&nextIndex]() -> float {return fixedDistrib_0_1_441[nextIndex()]; };
     
-    auto GetColorVector3 = [&nextIndex]() -> XMVECTOR {return XMVECTOR{ fixedDistrib_0_1_441[nextIndex()], fixedDistrib_0_1_441[nextIndex()], fixedDistrib_0_1_441[nextIndex()], 0.f }; };
+    auto GetColorVector3 = [&nextIndex]() -> XMVECTOR 
+        { 
+            float r = fixedDistrib_0_1_441[nextIndex()];
+            float g = fixedDistrib_0_1_441[nextIndex()];
+            float b = fixedDistrib_0_1_441[nextIndex()];
+            return XMVECTOR{ r, g , b, 0.f }; 
+        };
 
     const XMVECTOR lConstPoint = XMVECTOR{ 0.f, 4.f, 0.2f };
     for (int32_t a = -11; a < 11; a++) 
@@ -63,6 +69,9 @@ PerfTestSphereScene::PerfTestSphereScene()
             float fltRight = GetFloat();
             XMVECTOR lCenter = XMVECTOR{ (b + 0.9f * fltforward) * -1.f, a + 0.9f * fltRight,  0.2f };
 
+            XMVECTOR optVec3_01 = GetColorVector3();
+            XMVECTOR optVec3_02 = GetColorVector3();
+            float optFLT_01 = GetFloat();
             if (XMVectorGetX(XMVector3Length(lCenter - lConstPoint)) > 0.9f)
             {
                 std::shared_ptr<Material> sphereMat;
@@ -73,14 +82,14 @@ PerfTestSphereScene::PerfTestSphereScene()
                 {
                     // diffuse
                     XMFLOAT3 albedoColor;
-                    XMStoreFloat3(&albedoColor, GetColorVector3() * GetColorVector3());
+                    XMStoreFloat3(&albedoColor, optVec3_01 * optVec3_02);
                     sphereMat = AddMaterial<LambertianMat>(std::format("MaterialDiffuse_{}_{}", a, b), albedoColor);
                 }
                 else if (MaterialPercent < 0.95f) {
                     // metal
                     XMFLOAT3 albedoColor;
-                    XMStoreFloat3(&albedoColor, (GetColorVector3() * 0.5f) + XMVECTOR{ 0.5f, 0.5f, 0.5f, 0.f });
-                    float fuzz = GetFloat() * 0.5f;
+                    XMStoreFloat3(&albedoColor, (optVec3_01 * 0.5f) + XMVECTOR{ 0.5f, 0.5f, 0.5f, 0.f });
+                    float fuzz = optFLT_01 * 0.5f;
                     sphereMat = AddMaterial<MetalMat>(std::format("MaterialMetal_{}_{}", a, b), albedoColor, fuzz);
                 }
                 else {
