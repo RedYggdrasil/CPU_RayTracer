@@ -19,6 +19,7 @@
 #include "App/Assets/Scenes/FOVScene.h"
 #include "App/Assets/Scenes/GlassMetalDemoSceneLookAt.h"
 #include "App/Assets/Scenes/RandomSphereCollection.h"
+#include "App/Assets/Scenes/PerfTestSphereScene.h"
 
 #include <iostream>
 
@@ -39,7 +40,7 @@ int main(int argc, char** argv)
 	renderRandomizer.Initialize();
 
 	//Choose a scene
-	Scene* currentScene = new RandomSphereCollection();
+	Scene* currentScene = new PerfTestSphereScene();
 
 
 	Picture resultBuffer(currentScene->GetCamera().GetData().GetImageSize(), TEXT("Result.ppm"));

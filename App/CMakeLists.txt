@@ -35,6 +35,7 @@ set(APP_SOURCES
   ${APP_PUBLIC_SRC}/Assets/Scenes/GlassMetalDemoScene.h	${APP_PRIVTE_SRC}/Assets/Scenes/GlassMetalDemoScene.cpp
   ${APP_PUBLIC_SRC}/Assets/Scenes/GlassMetalDemoSceneLookAt.h		${APP_PRIVTE_SRC}/Assets/Scenes/GlassMetalDemoSceneLookAt.cpp
   ${APP_PUBLIC_SRC}/Assets/Scenes/RandomSphereCollection.h	${APP_PRIVTE_SRC}/Assets/Scenes/RandomSphereCollection.cpp
+  ${APP_PUBLIC_SRC}/Assets/Scenes/PerfTestSphereScene.h	${APP_PRIVTE_SRC}/Assets/Scenes/PerfTestSphereScene.cpp
   ${APP_PUBLIC_SRC}/SystemElement/Picture.h				${APP_PRIVTE_SRC}/SystemElement/Picture.cpp
   ${APP_PUBLIC_SRC}/Tools/RCollection.h					${APP_PRIVTE_SRC}/Tools/RCollection.cpp
   ${APP_PUBLIC_SRC}/Tools/REnum.h						${APP_PRIVTE_SRC}/Tools/REnum.cpp
