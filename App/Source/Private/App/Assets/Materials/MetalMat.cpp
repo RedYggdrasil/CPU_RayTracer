@@ -22,7 +22,6 @@ bool MetalMat::Scatter(const RayVECAnyNrm& InRayVec, const HitRecord& InRecord, 
     OutAttenuationColor = m_albedo;
     //Did the ray indeed point away from the surface ?
     return XMVectorGetX(XMVector3Dot(OutRayScattered.Direction, recordSurfaceNormal)) > 0.f;
-    return true;
 }
 
 #if WITH_REFERENCE

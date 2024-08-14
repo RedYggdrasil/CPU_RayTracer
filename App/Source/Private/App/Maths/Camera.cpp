@@ -264,7 +264,7 @@ void AppNmsp::Camera::Initialize()
 	m_bInitilized = true;
 }
 
-void AppNmsp::Camera::Render(const HList* InWorld, Picture* InTarget) const
+void AppNmsp::Camera::Render(const HList* InWorld, Picture* InOutTarget) const
 {
 #if _DEBUG
 	if (!m_bInitilized)
@@ -275,37 +275,34 @@ void AppNmsp::Camera::Render(const HList* InWorld, Picture* InTarget) const
 #endif // _DEBUG
 	static thread_local LocalVectorDistributionUnitSphereDistribution unitSphereDsitrib;
 
-	XMINT2 size = InTarget->GetSize();
+	XMINT2 size = InOutTarget->GetSize();
 	XMFLOAT2 sizef = XMFLOAT2((float)size.x, (float)size.y);
 
 
-	XMVECTOR lPixel00Pos = XMLoadFloat3(&m_cameraData.m_pixel00Pos);
-	XMVECTOR lPixelDeltaU = XMLoadFloat3(&m_cameraData.m_pixelDeltaU);
-	XMVECTOR lPixelDeltaV = XMLoadFloat3(&m_cameraData.m_pixelDeltaV);
-	XMVECTOR lCameraCenter = XMLoadFloat3(&m_cameraData.m_cameraCenter);
+	XMVECTOR lPixel00Pos	= XMLoadFloat3(&m_cameraData.m_pixel00Pos);
+	XMVECTOR lPixelDeltaU	= XMLoadFloat3(&m_cameraData.m_pixelDeltaU);
+	XMVECTOR lPixelDeltaV	= XMLoadFloat3(&m_cameraData.m_pixelDeltaV);
+	XMVECTOR lCameraCenter	= XMLoadFloat3(&m_cameraData.m_cameraCenter);
 
-	XMVECTOR lDefocusDiskU = XMLoadFloat3(&m_cameraData.m_defocusDiskU);
-	XMVECTOR lDefocusDiskV = XMLoadFloat3(&m_cameraData.m_defocusDiskV);
+	XMVECTOR lDefocusDiskU	= XMLoadFloat3(&m_cameraData.m_defocusDiskU);
+	XMVECTOR lDefocusDiskV	= XMLoadFloat3(&m_cameraData.m_defocusDiskV);
 
+	XMVECTOR lPixelCenter;
+	XMVECTOR resultColor;
+	float xf, yf;
 	bool bDefocusRays = m_cameraData.DefocusAngle > FLT_EPSILON;
 	for (int32_t y = 0; y < size.y; ++y)
 	{
-		static int32_t lastLogs = y / 10;
-		if (false && (y / 10) > lastLogs)
-		{
-			RLog::Log(LOG_DISPLAY, TEXT("In Row y = '{}'"), y);
-			lastLogs = y / 10;
-		}
-		float yf = (float)y;
+		yf = (float)y;
 		for (int32_t x = 0; x < size.x; ++x)
 		{
-			float xf = (float)x;
-			XMVECTOR lPixelCenter = lPixel00Pos + (xf * lPixelDeltaU) + (yf * lPixelDeltaV);
+			xf = (float)x;
+			lPixelCenter = lPixel00Pos + (xf * lPixelDeltaU) + (yf * lPixelDeltaV);
 
 #if USE_DOUBLE_PRECISION
 			color pixel_color(0, 0, 0);
 #endif
-			XMVECTOR resultColor = { 0.f, 0.f, 0.f, 0.f };
+			resultColor = VECTOR_ZERO;
 			for (int32_t sample = 0; sample < m_cameraData.SamplesPerPixel; sample++) 
 			{
 
@@ -320,6 +317,7 @@ void AppNmsp::Camera::Render(const HList* InWorld, Picture* InTarget) const
 					.Origin = defocusedRayOrigin,
 					.Direction = lRayDir
 				};
+
 #if USE_DOUBLE_PRECISION
 				ray rVec3 = get_ray(*this, x, y);
 				pixel_color += ray_colorFLTPrecision(rVec3, m_cameraData.MaxDepth, InWorld);
@@ -331,9 +329,9 @@ void AppNmsp::Camera::Render(const HList* InWorld, Picture* InTarget) const
 			XMFLOAT3 resFLT3 = pixel_color.ToFLT3();
 			pixel_color = pixel_color * m_cameraData.PixelSamplesScale;
 			resultColor = XMLoadFloat3(&resFLT3);
-			InTarget->m_pixelDBLs[InTarget->mPixelDBLIDX(x, y)] = pictureColor{ pixel_color.e[0], pixel_color.e[1], pixel_color.e[2] };
+			InOutTarget->m_pixelDBLs[InOutTarget->mPixelDBLIDX(x, y)] = pictureColor{ pixel_color.e[0], pixel_color.e[1], pixel_color.e[2] };
 #else			
-			XMStoreFloat3(&InTarget->operator[]({ x, y }), XMVectorScale(resultColor, m_cameraData.m_pixelSamplesScale));
+			XMStoreFloat3(&InOutTarget->operator[]({ x, y }), XMVectorScale(resultColor, m_cameraData.m_pixelSamplesScale));
 
 #endif
 		}

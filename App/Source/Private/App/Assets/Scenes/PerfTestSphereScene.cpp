@@ -21,9 +21,7 @@ constexpr std::array<float, 441> fixedDistrib_0_1_441 =
 PerfTestSphereScene::PerfTestSphereScene()
     :Scene()
 {
-    //static thread_local RRenderRandomizer::LocalRealDistribution<float> localDistrib = RRenderRandomizer::s_GetLocalDesyncDistribution<float>(0.0f, 1.0f);
-    //static thread_local LocalVectorDistribution unitVecDistrib = LocalVectorDistribution::CreateDesyncRangedDistribution(0.f, 1.f);
-
+#pragma region Unrelated
     CameraFLT& cameraData = m_camera.GetData();
 
     cameraData.AspectRatio = 16.f / 9.f;
@@ -45,6 +43,7 @@ PerfTestSphereScene::PerfTestSphereScene()
     std::shared_ptr<LambertianMat>	materialGround = AddMaterial<LambertianMat>(TEXT("MaterialGround"), XMFLOAT3{ 0.5f, 0.5f, 0.5f });
     m_world.Add(std::make_shared<HSphere>(XMFLOAT3{ 0.0f,  0.0f,  -1000.f }, 1000.0f, materialGround, HittableDepthType::Container0, RefractionIndex::Air));
 
+#pragma endregion
     size_t currentIndex = std::numeric_limits<size_t>::max();
     constexpr size_t arrayCount = fixedDistrib_0_1_441.size();
     auto nextIndex = [&arrayCount, &currentIndex]() -> size_t {return (++currentIndex)% arrayCount; };

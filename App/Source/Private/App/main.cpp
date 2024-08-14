@@ -32,6 +32,8 @@ using namespace AppNmsp;
 using namespace DirectX;
 
 
+using std::chrono::microseconds;
+using std::chrono::steady_clock;
 int main(int argc, char** argv) 
 {
 	//Initialize app
@@ -42,13 +44,13 @@ int main(int argc, char** argv)
 	//Choose a scene
 	Scene* currentScene = new PerfTestSphereScene();
 
-
+	//Create image buffer
 	Picture resultBuffer(currentScene->GetCamera().GetData().GetImageSize(), TEXT("Result.ppm"));
 
 	//Start Chronos
-	std::chrono::steady_clock::time_point startTime = std::chrono::high_resolution_clock::now();
-	std::chrono::steady_clock::time_point endRenderTime;
-	std::chrono::steady_clock::time_point endWriteTime;
+	steady_clock::time_point startTime = std::chrono::high_resolution_clock::now();
+	steady_clock::time_point endRenderTime;
+	steady_clock::time_point endWriteTime;
 
 	
 	//Draw the scene
@@ -66,8 +68,8 @@ int main(int argc, char** argv)
 	}
 
 	//Stop Chronos
-	auto durationRender = std::chrono::duration_cast<std::chrono::microseconds>(endRenderTime - startTime);
-	auto durationRenderAndWrite = std::chrono::duration_cast<std::chrono::microseconds>(endWriteTime - startTime);
+	microseconds durationRender = std::chrono::duration_cast<microseconds>(endRenderTime - startTime);
+	microseconds durationRenderAndWrite = std::chrono::duration_cast<microseconds>(endWriteTime - startTime);
 
 	//Clean heap
 	delete(currentScene);

@@ -103,6 +103,6 @@ namespace AppNmsp
 	public:
 		void Initialize();
 	public:
-		void Render(const class HList* InWorld, class Picture* InTarget) const;
+		void Render(const class HList* InWorld, class Picture* InOutTarget) const;
 	};
 };
