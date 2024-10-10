@@ -3,7 +3,7 @@
 
 namespace AppNmsp
 {
-	class __declspec(align(16)) RayVEC
+	class __declspec(align(16)) LRayVEC
 	{
 	public:
 		DirectX::XMVECTOR Origin;
@@ -13,14 +13,19 @@ namespace AppNmsp
 		{
 			return DirectX::XMVectorAdd(Origin, DirectX::XMVectorScale(Direction, InProgress));
 		};
+		inline static DirectX::XMVECTOR XM_CALLCONV At(DirectX::FXMVECTOR InRayOrigin, DirectX::FXMVECTOR InRayDirection, const float InProgress)
+		{
+			return DirectX::XMVectorAdd(InRayOrigin, DirectX::XMVectorScale(InRayDirection, InProgress));
+		};
+
 	};
 
 	//A RayVec with normalized Direction
-	using RayVECNrmlzd = RayVEC;
+	using LRayVECNrmlzd = LRayVEC;
 	//A RayVec with length Direction
-	using RayVECLength = RayVEC;
+	using LRayVECLength = LRayVEC;
 	//A RayVec with normalized or length Direction
-	using RayVECAnyNrm = RayVEC;
+	using LRayVECAnyNrm = LRayVEC;
 
 	class RayFLT
 	{
@@ -28,12 +33,12 @@ namespace AppNmsp
 		DirectX::XMFLOAT3 Origin;
 		DirectX::XMFLOAT3 Direction;
 	public:
-		inline void LoadToVector(RayVEC* InOutPDestination) const
+		inline void LoadToVector(LRayVEC* InOutPDestination) const
 		{
 			InOutPDestination->Origin = DirectX::XMLoadFloat3(&Origin);
 			InOutPDestination->Direction = DirectX::XMLoadFloat3(&Direction);
 		};
-		inline void StoreFromVector(const RayVEC* InPSource)
+		inline void StoreFromVector(const LRayVEC* InPSource)
 		{
 			DirectX::XMStoreFloat3(&Origin, InPSource->Origin);
 			DirectX::XMStoreFloat3(&Direction, InPSource->Direction);
@@ -46,12 +51,12 @@ namespace AppNmsp
 	//A RayFLT with normalized or length Direction
 	using RayFLTAnyNrm = RayFLT;
 
-	inline void XMLoadRay(RayVEC* InOutPDestination, const RayFLT* InOutPSource)
+	inline void XMLoadRay(LRayVEC* InOutPDestination, const RayFLT* InOutPSource)
 	{
 		InOutPDestination->Origin =		DirectX::XMLoadFloat3(&InOutPSource->Origin);
 		InOutPDestination->Direction =	DirectX::XMLoadFloat3(&InOutPSource->Direction);
 	};
-	inline void XMStoreRay(RayFLT*  InOutPDestination, const RayVEC* InOutPSource)
+	inline void XMStoreRay(RayFLT*  InOutPDestination, const LRayVEC* InOutPSource)
 	{
 		DirectX::XMStoreFloat3(&InOutPDestination->Origin,		InOutPSource->Origin);
 		DirectX::XMStoreFloat3(&InOutPDestination->Direction,	InOutPSource->Direction);

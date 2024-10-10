@@ -14,7 +14,7 @@ static float SchlickReflectance(const float InCosIncidentAngle, const float InRe
 }
 #endif
 
-bool DielectricMat::Scatter(const RayVECAnyNrm& InRayVec, const HitRecord& InRecord, XMFLOAT3& OutAttenuationColor, RayVECAnyNrm& OutRayScattered) const
+bool DielectricMat::Scatter(const RayFLTAnyNrm& InRayVec, const HitRecord& InRecord, XMFLOAT3& OutAttenuationColor, RayFLTAnyNrm& OutRayScattered) const
 {
 
    OutAttenuationColor = FLOAT3_ONE;
@@ -23,7 +23,7 @@ bool DielectricMat::Scatter(const RayVECAnyNrm& InRayVec, const HitRecord& InRec
        InRecord.OuterRefractionIndex / m_refractionIndex
        : m_refractionIndex / InRecord.OuterRefractionIndex;
 
-   XMVECTOR NormalizedDirection = XMVector3Normalize(InRayVec.Direction);
+   XMVECTOR NormalizedDirection = XMVector3Normalize(XMLoadFloat3(&InRayVec.Direction));
    XMVECTOR SurfaceNormal = XMLoadFloat3(&InRecord.SurfaceNormal);
 
    float cosTheta = fminf(XMVectorGetX(XMVector3Dot(-NormalizedDirection, SurfaceNormal)), 1.f);
@@ -54,11 +54,9 @@ bool DielectricMat::Scatter(const RayVECAnyNrm& InRayVec, const HitRecord& InRec
        resultDirection = refracted;
    }
 
-   OutRayScattered = RayVECAnyNrm
-   {
-       .Origin = XMLoadFloat3(&InRecord.ImpactPoint),
-       .Direction = resultDirection
-   };
+   OutRayScattered.Origin = InRecord.ImpactPoint;
+   XMStoreFloat3(&OutRayScattered.Direction, resultDirection);
+
     return true;
 }
 

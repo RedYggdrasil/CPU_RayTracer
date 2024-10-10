@@ -172,27 +172,27 @@ inline XMVECTOR XM_CALLCONV DefocusDiskSample(FXMVECTOR InLoadedOrigin, FXMVECTO
 	return InLoadedOrigin + (XMVectorGetX(DefocusAmount) * InDefocusDiskU) + (XMVectorGetY(DefocusAmount) * InDefocusDiskV);
 }
 
-XMVECTOR XM_CALLCONV RayColor(const RayVECAnyNrm* InPlRay, const int32_t InDepth, const HList* InWorld)
+XMVECTOR XM_CALLCONV RayColor(const RayFLTAnyNrm& InPFLT, const int32_t InDepth, const HList* InWorld)
 {
 	if (InDepth <= 0) { return VECTOR_ZERO; }
 	static constexpr FInterval DefaultInterval = FInterval(OBJECT_RAY_INTERVAL_AMOUNT, R_INFINITY_F);
 	HitRecord hitRecord;
 
-	if (InWorld->Hit(*InPlRay, DefaultInterval, /*Out*/ hitRecord))
+	if (InWorld->Hit(InPFLT, DefaultInterval, /*Out*/ hitRecord))
 	{
-		RayVECAnyNrm rayScaterred;
+		RayFLTAnyNrm rayScaterred;
 		DirectX::XMFLOAT3 colorAttenuation;
 
-		if (hitRecord.SurfaceMaterial->Scatter(*InPlRay, hitRecord, /*Out*/colorAttenuation, /*Out*/rayScaterred))
+		if (hitRecord.SurfaceMaterial->Scatter(InPFLT, hitRecord, /*Out*/colorAttenuation, /*Out*/rayScaterred))
 		{
 			XMVECTOR lColorAttenuation = XMLoadFloat3(&colorAttenuation);
-			return lColorAttenuation * RayColor(&rayScaterred, InDepth - 1, InWorld);
+			return lColorAttenuation * RayColor(rayScaterred, InDepth - 1, InWorld);
 		};
 		return VECTOR_ZERO;
 	}
 	else
 	{
-		XMVECTOR rayNorm = XMVector3Normalize(InPlRay->Direction);
+		XMVECTOR rayNorm = XMVector3Normalize(XMLoadFloat3(&InPFLT.Direction));
 
 		float a = 0.5f * (XMVectorGetZ(rayNorm) + 1.f);
 		static constexpr XMVECTOR ColA{ 1.f, 1.f, 1.f, 0.f };
@@ -312,17 +312,15 @@ void AppNmsp::Camera::Render(const HList* InWorld, Picture* InOutTarget) const
 					:
 					lCameraCenter;
 				XMVECTOR lRayDir = /*PixelSample*/(lPixelCenter + SampleSquare(lPixelDeltaU, lPixelDeltaV)) - /*RayOrigin*/defocusedRayOrigin;
-				RayVECLength lRay
-				{
-					.Origin = defocusedRayOrigin,
-					.Direction = lRayDir
-				};
+				RayFLTLength fltRay;
+				XMStoreFloat3(&fltRay.Origin, defocusedRayOrigin);
+				XMStoreFloat3(&fltRay.Direction, lRayDir);
 
 #if USE_DOUBLE_PRECISION
 				ray rVec3 = get_ray(*this, x, y);
 				pixel_color += ray_colorFLTPrecision(rVec3, m_cameraData.MaxDepth, InWorld);
 #else
-				resultColor += RayColor(&lRay, m_cameraData.MaxDepth, InWorld);
+				resultColor += RayColor(fltRay, m_cameraData.MaxDepth, InWorld);
 #endif
 			}
 #if USE_DOUBLE_PRECISION

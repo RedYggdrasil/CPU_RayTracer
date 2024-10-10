@@ -7,21 +7,21 @@ using namespace DirectX;
 
 
 
-bool MetalMat::Scatter(const RayVECAnyNrm& InRayVec, const HitRecord& InRecord, XMFLOAT3& OutAttenuationColor, RayVECAnyNrm& OutRayScattered) const
+bool MetalMat::Scatter(const RayFLTAnyNrm& InRayVec, const HitRecord& InRecord, XMFLOAT3& OutAttenuationColor, RayFLTAnyNrm& OutRayScattered) const
 {
     static thread_local LocalVectorDistributionUnitSphereDistribution distrib;
 
     XMVECTOR recordSurfaceNormal = XMLoadFloat3(&InRecord.SurfaceNormal);
-    XMVECTOR reflectedVec = XMVector3Reflect(InRayVec.Direction, recordSurfaceNormal);
+    XMVECTOR lDirection = XMLoadFloat3(&InRayVec.Direction);
+    XMVECTOR reflectedVec = XMVector3Reflect(lDirection, recordSurfaceNormal);
     reflectedVec = XMVector3Normalize(reflectedVec) + (distrib.RandomUnitVector() * m_fuzziness);
-    OutRayScattered = RayVECAnyNrm
-    {
-        .Origin = XMLoadFloat3(&InRecord.ImpactPoint),
-        .Direction = reflectedVec
-    };
+    
+    OutRayScattered.Origin = InRecord.ImpactPoint;
+    XMStoreFloat3(&OutRayScattered.Direction, reflectedVec);
+
     OutAttenuationColor = m_albedo;
     //Did the ray indeed point away from the surface ?
-    return XMVectorGetX(XMVector3Dot(OutRayScattered.Direction, recordSurfaceNormal)) > 0.f;
+    return XMVectorGetX(XMVector3Dot(reflectedVec, recordSurfaceNormal)) > 0.f;
 }
 
 #if WITH_REFERENCE

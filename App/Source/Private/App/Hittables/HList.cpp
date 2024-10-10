@@ -3,7 +3,7 @@
 using namespace AppNmsp;
 using namespace DirectX;
 
-bool HList::Hit(const RayVECAnyNrm& InRayVec, const FInterval InRayInterval, HitRecord& OutRecord) const
+bool HList::Hit(const RayFLTAnyNrm& InRayVec, const FInterval InRayInterval, HitRecord& OutRecord) const
 {
     HitRecord localRecord;
     bool bDidHit = false;

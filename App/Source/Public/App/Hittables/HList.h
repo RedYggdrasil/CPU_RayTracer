@@ -19,7 +19,7 @@ namespace AppNmsp
         inline void Add(std::shared_ptr<Hittable> InHittable) { m_hittables.push_back(InHittable); }
         inline void Clear() { m_hittables.clear(); }
 
-        virtual bool Hit(const RayVECAnyNrm& InRayVec, const FInterval InRayInterval, HitRecord& OutRecord) const R_PURE_OVERRIDE final;
+        virtual bool Hit(const RayFLTAnyNrm& InRayVec, const FInterval InRayInterval, HitRecord& OutRecord) const R_PURE_OVERRIDE final;
 #if WITH_REFERENCE
         virtual bool Hit(const ray& InRay, const DInterval InRayInterval, hit_record& OutRecord) const R_PURE_OVERRIDE final;
 #endif

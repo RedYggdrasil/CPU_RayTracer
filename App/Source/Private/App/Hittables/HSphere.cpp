@@ -3,12 +3,15 @@
 using namespace AppNmsp;
 using namespace DirectX;
 
-bool HSphere::Hit(const RayVECAnyNrm& InRayVec, const FInterval InRayInterval, HitRecord& OutRecord) const
+bool HSphere::Hit(const RayFLTAnyNrm& InRayFLT, const FInterval InRayInterval, HitRecord& OutRecord) const
 {
     XMVECTOR lCenter = XMLoadFloat3(&m_center);
-    XMVECTOR oc = lCenter - InRayVec.Origin;
-    float a = XMVectorGetX(XMVector3LengthSq(InRayVec.Direction));
-    float h = XMVectorGetX(XMVector3Dot(InRayVec.Direction, oc));
+    XMVECTOR lRayOrigin = XMLoadFloat3(&InRayFLT.Origin);
+    XMVECTOR lRayDir = XMLoadFloat3(&InRayFLT.Direction);
+
+    XMVECTOR oc = lCenter - lRayOrigin;
+    float a = XMVectorGetX(XMVector3LengthSq(lRayDir));
+    float h = XMVectorGetX(XMVector3Dot(lRayDir, oc));
     float c = XMVectorGetX(XMVector3LengthSq(oc)) - m_radius * m_radius;
 
     float discriminant = h * h - a * c;
@@ -31,11 +34,11 @@ bool HSphere::Hit(const RayVECAnyNrm& InRayVec, const FInterval InRayInterval, H
     }
 
     OutRecord.IncomingRayTValue = root;
-    XMVECTOR lHitLocation = InRayVec.At(OutRecord.IncomingRayTValue);
+    XMVECTOR lHitLocation = LRayVEC::At(lRayOrigin, lRayDir, OutRecord.IncomingRayTValue);
 
     XMVECTOR OutwardNormal = (lHitLocation - lCenter) / m_radius;
 
-    OutRecord.SetFaceNormal(InRayVec, OutwardNormal);
+    OutRecord.SetFaceNormal(lRayDir, OutwardNormal);
     OutRecord.SurfaceMaterial = m_material;
 
     //Hit location is offseted to avoid float imprecision causing ray origin to be under the surface and imediatly rebouncing on it, causing weird circular artifacts.

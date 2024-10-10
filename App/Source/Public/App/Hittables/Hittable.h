@@ -30,13 +30,6 @@ enum class HittableDepthType : uint8_t
 };
 RS_DEFINE_ENUM(HittableDepthType);
 
-struct EnvironmentData
-{
-public:
-    size_t InstanceID;
-    float Refractance;
-    HittableDepthType Depth;
-};
 
 namespace AppNmsp
 {
@@ -57,12 +50,12 @@ namespace AppNmsp
         /// <summary>
         /// Set frontFace and normal parameter
         /// </summary>
-        /// <param name="InRay">The ray, loaded into registeries</param>
-        /// <param name="InOutwardNormalNrmlzd">The surface pointing out of surface</param>
+        /// <param name="InRay">The ray's direction, loaded into registery</param>
+        /// <param name="InOutwardNormalNrmlzd">The normal pointing out of surface</param>
         /// <returns></returns>
-        inline void XM_CALLCONV SetFaceNormal(const RayVECAnyNrm& InRay, DirectX::FXMVECTOR InOutwardNormalNrmlzd)
+        inline void XM_CALLCONV SetFaceNormal(DirectX::FXMVECTOR InRayDirection, DirectX::FXMVECTOR InOutwardNormalNrmlzd)
         {
-            bFrontFace = DirectX::XMVectorGetX(DirectX::XMVector3Dot(InRay.Direction, InOutwardNormalNrmlzd)) <= 0.f;
+            bFrontFace = DirectX::XMVectorGetX(DirectX::XMVector3Dot(InRayDirection, InOutwardNormalNrmlzd)) <= 0.f;
             DirectX::XMStoreFloat3(&SurfaceNormal, bFrontFace ? InOutwardNormalNrmlzd : DirectX::XMVectorScale(InOutwardNormalNrmlzd, -1.f));
         }
     };
@@ -102,15 +95,6 @@ namespace AppNmsp
         inline bool operator<(const Hittable& InOther) const 
         { return HType < InOther.HType; }
     public:
-        EnvironmentData GenerateEnvironmentData() const
-        {
-            return EnvironmentData
-            {
-                .InstanceID = this->InstanceID,
-                .Refractance = this->GetInnerRefractionIndex(),
-                .Depth = HDepthType
-            };
-        }
 
         virtual bool GetIsRefractable() const { return false; }
         virtual float GetInnerRefractionIndex() const { return 0.0; }
@@ -120,7 +104,7 @@ namespace AppNmsp
         /*TODO : Generate a list of overllaped collider associated with EnvironmentData and return refractance based on position*/
         inline float XM_CALLCONV GetOuterRefractionIndex(DirectX::FXMVECTOR InPosition) const { return tmp_OuterRefractionIndex; }
 
-        virtual bool Hit(const RayVECAnyNrm& InRayVec, const FInterval InRayInterval, HitRecord& OutRecord) const R_PURE;
+        virtual bool Hit(const RayFLTAnyNrm& InRayVec, const FInterval InRayInterval, HitRecord& OutRecord) const R_PURE;
 #if WITH_REFERENCE
         virtual bool Hit(const ray& InRay, const DInterval InRayInterval, hit_record& OutRecord) const R_PURE;
 #endif

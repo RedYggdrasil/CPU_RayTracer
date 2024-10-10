@@ -7,7 +7,7 @@ using namespace DirectX;
 
 
 
-bool LambertianMat::Scatter(const RayVECAnyNrm& InRayVec, const HitRecord& InRecord, XMFLOAT3& OutAttenuationColor, RayVECAnyNrm& OutRayScattered) const
+bool LambertianMat::Scatter(const RayFLTAnyNrm& InRayVec, const HitRecord& InRecord, XMFLOAT3& OutAttenuationColor, RayFLTAnyNrm& OutRayScattered) const
 {
     static thread_local LocalVectorDistributionUnitSphereDistribution distrib;
 
@@ -16,12 +16,10 @@ bool LambertianMat::Scatter(const RayVECAnyNrm& InRayVec, const HitRecord& InRec
     if (RMath::XMVector3Small(scatterDirection))
     { scatterDirection = XMLoadFloat3(&InRecord.SurfaceNormal); }
 
-    OutRayScattered = RayVECAnyNrm
-    {
-        .Origin = XMLoadFloat3(&InRecord.ImpactPoint),
-        .Direction = scatterDirection
-    };
+    OutRayScattered.Origin = InRecord.ImpactPoint;
+    XMStoreFloat3(&OutRayScattered.Direction, scatterDirection);
     OutAttenuationColor = m_albedo;
+
     return true;
 }
 

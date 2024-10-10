@@ -14,7 +14,7 @@ namespace AppNmsp
     class Material
     {
     public:
-        virtual bool Scatter(const RayVECAnyNrm& InRayVec, const HitRecord& InRecord, DirectX::XMFLOAT3& OutAttenuationColor, RayVECAnyNrm& OutRayScattered) const {
+        virtual bool Scatter(const RayFLTAnyNrm& InRayVec, const HitRecord& InRecord, DirectX::XMFLOAT3& OutAttenuationColor, RayFLTAnyNrm& OutRayScattered) const {
             return false;
         }
 #if WITH_REFERENCE
